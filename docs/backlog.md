@@ -150,3 +150,5 @@ Solicitada pelo aluno após orientação do professor: priorizar cadastro e comp
 ## Publicação do repositório
 
 Por escolha do autor, apenas este backlog é publicado entre os documentos Markdown. Os registros detalhados citados no histórico são mantidos localmente. O estado B90 permanece em verificação.
+
+O README também integra a publicação, com apresentação, funcionalidades e instruções de execução; os demais Markdown continuam locais.

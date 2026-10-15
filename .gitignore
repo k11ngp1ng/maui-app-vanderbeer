@@ -17,3 +17,5 @@ database/.scratch-mysql/
 !docs/backlog.md
 .codex/
 .agents/
+
+!README.md

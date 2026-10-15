@@ -168,7 +168,7 @@ function filesIn(dir) {
   });
 }
 const fullPlanning = fs.existsSync(path.join(root, 'docs/requisitos.md'));
-const docs = fullPlanning ? ['README.md', 'AGENTS.md', ...['docs', 'rules', 'workflows'].flatMap(filesIn)] : ['docs/backlog.md'];
+const docs = fullPlanning ? ['README.md', 'AGENTS.md', ...['docs', 'rules', 'workflows'].flatMap(filesIn)] : ['README.md', 'docs/backlog.md'].filter(file => fs.existsSync(path.join(root, file)));
 for (const file of docs) {
   const body = read(file);
   for (const match of body.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)) {

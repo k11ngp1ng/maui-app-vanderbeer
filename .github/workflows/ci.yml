@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  foundation:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.401'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Restore independent projects
+        run: |
+          dotnet restore src/VanderBeer.Api/VanderBeer.Api.csproj
+          dotnet restore tools/VanderBeer.DbMigrator/VanderBeer.DbMigrator.csproj
+          dotnet restore tests/VanderBeer.ApiTests/VanderBeer.ApiTests.csproj
+          dotnet restore tests/VanderBeer.UnitTests/VanderBeer.UnitTests.csproj
+      - name: Build API and migration tool
+        run: |
+          dotnet build src/VanderBeer.Api/VanderBeer.Api.csproj --no-restore --configuration Release
+          dotnet build tools/VanderBeer.DbMigrator/VanderBeer.DbMigrator.csproj --no-restore --configuration Release
+      - name: Run independent tests
+        run: |
+          dotnet test tests/VanderBeer.ApiTests/VanderBeer.ApiTests.csproj --no-restore --configuration Release
+          dotnet test tests/VanderBeer.UnitTests/VanderBeer.UnitTests.csproj --no-restore --configuration Release
+      - name: Validate planning and HTTP examples
+        run: node scripts/validate-planning.mjs

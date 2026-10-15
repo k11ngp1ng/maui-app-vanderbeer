@@ -1,0 +1,3723 @@
+{
+  "openapi": "3.1.1",
+  "info": {
+    "title": "VanderBeer API",
+    "version": "1.1.0",
+    "description": "Contrato evolutivo versão 1.1.0: catálogo, cadastro PF/PJ, pedidos e atendimento implementados e verificados até B83. Demonstração sem login com dados fictícios. Todo comando tem clientRequestId; ver docs/sincronizacao.md."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5080",
+      "description": "API local de desenvolvimento; endereço do emulador/aparelho depende da rede."
+    }
+  ],
+  "tags": [
+    {
+      "name": "Catalog"
+    },
+    {
+      "name": "Customers"
+    },
+    {
+      "name": "Orders"
+    },
+    {
+      "name": "Company"
+    },
+    {
+      "name": "Operations"
+    }
+  ],
+  "paths": {
+    "/api/v1/store-settings": {
+      "get": {
+        "operationId": "GetStoreSettings",
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "GetStoreSettings",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreSettings"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "storeName": "VanderBeer",
+                      "timeZone": "America/Sao_Paulo",
+                      "currency": "BRL",
+                      "today": "2026-10-07",
+                      "minRequestedDate": "2026-10-07",
+                      "maxRequestedDate": "2026-11-06",
+                      "deliveryFee": 0,
+                      "maxDistinctItems": 50,
+                      "maxQuantityPerItem": 999,
+                      "maxOrderTotal": 999999.99
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        }
+      }
+    },
+    "/api/v1/categories": {
+      "get": {
+        "operationId": "GetCategories",
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "GetCategories",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 100,
+                  "items": {
+                    "$ref": "#/components/schemas/Category"
+                  }
+                },
+                "examples": {
+                  "demo": {
+                    "value": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000002",
+                        "name": "Cervejas"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        }
+      }
+    },
+    "/api/v1/payment-methods": {
+      "get": {
+        "operationId": "GetPaymentMethods",
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "GetPaymentMethods",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "minItems": 0,
+                  "maxItems": 100,
+                  "items": {
+                    "$ref": "#/components/schemas/PaymentMethod"
+                  }
+                },
+                "examples": {
+                  "demo": {
+                    "value": [
+                      {
+                        "id": "00000000-0000-4000-8000-000000000004",
+                        "code": "Cash",
+                        "name": "Dinheiro"
+                      },
+                      {
+                        "id": "00000000-0000-4000-8000-000000000006",
+                        "code": "CardOnFulfillment",
+                        "name": "Cartão no atendimento"
+                      },
+                      {
+                        "id": "00000000-0000-4000-8000-000000000007",
+                        "code": "PixOnFulfillment",
+                        "name": "Pix no atendimento"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        }
+      }
+    },
+    "/api/v1/products": {
+      "get": {
+        "operationId": "GetProducts",
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "GetProducts",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductPage"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "items": [
+                        {
+                          "id": "00000000-0000-4000-8000-000000000003",
+                          "categoryId": "00000000-0000-4000-8000-000000000002",
+                          "sku": "VB-PILSEN-350",
+                          "name": "VanderBeer Pilsen 350 ml",
+                          "description": "Produto de demonstração.",
+                          "unitLabel": "Lata 350 ml",
+                          "price": 10,
+                          "imageUrl": null,
+                          "isAvailable": true,
+                          "isActive": true,
+                          "version": 1,
+                          "updatedAtUtc": "2026-10-08T00:20:00Z"
+                        }
+                      ],
+                      "page": 1,
+                      "pageSize": 20,
+                      "total": 1
+                    }
+                  },
+                  "empty": {
+                    "value": {
+                      "items": [],
+                      "page": 1,
+                      "pageSize": 20,
+                      "total": 0
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        }
+      }
+    },
+    "/api/v1/products/{id}": {
+      "get": {
+        "operationId": "GetProduct",
+        "tags": [
+          "Catalog"
+        ],
+        "summary": "GetProduct",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "id": "00000000-0000-4000-8000-000000000003",
+                      "categoryId": "00000000-0000-4000-8000-000000000002",
+                      "sku": "VB-PILSEN-350",
+                      "name": "VanderBeer Pilsen 350 ml",
+                      "description": "Produto de demonstração.",
+                      "unitLabel": "Lata 350 ml",
+                      "price": 10,
+                      "imageUrl": null,
+                      "isAvailable": true,
+                      "isActive": true,
+                      "version": 1,
+                      "updatedAtUtc": "2026-10-08T00:20:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        }
+      }
+    },
+    "/api/v1/customers": {
+      "post": {
+        "operationId": "CreateCustomer",
+        "tags": [
+          "Customers"
+        ],
+        "summary": "CreateCustomer",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Replay de criação já persistida, com o mesmo corpo original.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "fullName": "Cliente de demonstração",
+                      "cpf": "12345678909",
+                      "phone": "11999999999",
+                      "email": null,
+                      "address": {
+                        "postalCode": "01001000",
+                        "street": "Rua Exemplo",
+                        "number": "123",
+                        "complement": null,
+                        "district": "Centro",
+                        "city": "São Paulo",
+                        "state": "SP",
+                        "reference": null
+                      },
+                      "version": 1,
+                      "createdAtUtc": "2026-10-08T00:30:00Z",
+                      "updatedAtUtc": "2026-10-08T00:30:00Z",
+                      "customerType": "Individual",
+                      "companyName": null,
+                      "cnpj": null
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Idempotent-Replay": {
+                "description": "true em resposta recuperada; false na primeira execução.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Criado e confirmado no banco.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "fullName": "Cliente de demonstração",
+                      "cpf": "12345678909",
+                      "phone": "11999999999",
+                      "email": null,
+                      "address": {
+                        "postalCode": "01001000",
+                        "street": "Rua Exemplo",
+                        "number": "123",
+                        "complement": null,
+                        "district": "Centro",
+                        "city": "São Paulo",
+                        "state": "SP",
+                        "reference": null
+                      },
+                      "version": 1,
+                      "createdAtUtc": "2026-10-08T00:30:00Z",
+                      "updatedAtUtc": "2026-10-08T00:30:00Z",
+                      "customerType": "Individual",
+                      "companyName": null,
+                      "cnpj": null
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "description": "URL do recurso criado.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Idempotent-Replay": {
+                "description": "true em resposta recuperada; false na primeira execução.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "409": {
+            "description": "Conflito",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Conflito",
+                      "status": 409,
+                      "detail": "Consulte code e errors.",
+                      "code": "RequestKeyConflict",
+                      "traceId": "demo-trace-001",
+                      "errors": [],
+                      "currentVersion": null,
+                      "priceChanges": [],
+                      "currentTotal": null
+                    }
+                  },
+                  "duplicateCpf": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Conflito",
+                      "status": 409,
+                      "detail": "Já existe um cadastro com esse CPF.",
+                      "code": "DuplicateCpf",
+                      "traceId": "demo-trace-001",
+                      "errors": [
+                        {
+                          "field": "cpf",
+                          "message": "CPF já cadastrado."
+                        }
+                      ],
+                      "currentVersion": null,
+                      "priceChanges": [],
+                      "currentTotal": null
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Idempotent-Replay": {
+                "description": "Presente nas rejeições comerciais com recibo.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCustomerRequest"
+              },
+              "examples": {
+                "demo": {
+                  "value": {
+                    "clientRequestId": "00000000-0000-4000-8000-000000000101",
+                    "fullName": "Cliente de demonstração",
+                    "cpf": "12345678909",
+                    "phone": "11999999999",
+                    "email": null,
+                    "address": {
+                      "postalCode": "01001000",
+                      "street": "Rua Exemplo",
+                      "number": "123",
+                      "complement": null,
+                      "district": "Centro",
+                      "city": "São Paulo",
+                      "state": "SP",
+                      "reference": null
+                    },
+                    "customerType": "Individual",
+                    "companyName": null,
+                    "cnpj": null
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/customers/{id}": {
+      "get": {
+        "operationId": "GetCustomer",
+        "tags": [
+          "Customers"
+        ],
+        "summary": "GetCustomer",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "fullName": "Cliente de demonstração",
+                      "cpf": "12345678909",
+                      "phone": "11999999999",
+                      "email": null,
+                      "address": {
+                        "postalCode": "01001000",
+                        "street": "Rua Exemplo",
+                        "number": "123",
+                        "complement": null,
+                        "district": "Centro",
+                        "city": "São Paulo",
+                        "state": "SP",
+                        "reference": null
+                      },
+                      "version": 1,
+                      "createdAtUtc": "2026-10-08T00:30:00Z",
+                      "updatedAtUtc": "2026-10-08T00:30:00Z",
+                      "customerType": "Individual",
+                      "companyName": null,
+                      "cnpj": null
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        }
+      },
+      "put": {
+        "operationId": "UpdateCustomer",
+        "tags": [
+          "Customers"
+        ],
+        "summary": "UpdateCustomer",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Customer"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "id": "00000000-0000-4000-8000-000000000001",
+                      "fullName": "Cliente de demonstração",
+                      "cpf": "12345678909",
+                      "phone": "11999999999",
+                      "email": null,
+                      "address": {
+                        "postalCode": "01001000",
+                        "street": "Rua Exemplo",
+                        "number": "123",
+                        "complement": null,
+                        "district": "Centro",
+                        "city": "São Paulo",
+                        "state": "SP",
+                        "reference": null
+                      },
+                      "version": 2,
+                      "createdAtUtc": "2026-10-08T00:30:00Z",
+                      "updatedAtUtc": "2026-10-08T00:40:00Z",
+                      "customerType": "Individual",
+                      "companyName": null,
+                      "cnpj": null
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Idempotent-Replay": {
+                "description": "true em resposta recuperada; false na primeira execução.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "409": {
+            "description": "Conflito",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Conflito",
+                      "status": 409,
+                      "detail": "Consulte code e errors.",
+                      "code": "RequestKeyConflict",
+                      "traceId": "demo-trace-001",
+                      "errors": [],
+                      "currentVersion": null,
+                      "priceChanges": [],
+                      "currentTotal": null
+                    }
+                  },
+                  "versionConflict": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Conflito",
+                      "status": 409,
+                      "detail": "O registro mudou. Atualize e revise.",
+                      "code": "CustomerVersionConflict",
+                      "traceId": "demo-trace-002",
+                      "errors": [],
+                      "currentVersion": 2,
+                      "priceChanges": [],
+                      "currentTotal": null
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Idempotent-Replay": {
+                "description": "Presente nas rejeições comerciais com recibo.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCustomerRequest"
+              },
+              "examples": {
+                "demo": {
+                  "value": {
+                    "clientRequestId": "00000000-0000-4000-8000-000000000104",
+                    "fullName": "Cliente de demonstração",
+                    "cpf": "12345678909",
+                    "phone": "11999999999",
+                    "email": null,
+                    "address": {
+                      "postalCode": "01001000",
+                      "street": "Rua Exemplo",
+                      "number": "123",
+                      "complement": null,
+                      "district": "Centro",
+                      "city": "São Paulo",
+                      "state": "SP",
+                      "reference": null
+                    },
+                    "expectedVersion": 1,
+                    "customerType": "Individual",
+                    "companyName": null,
+                    "cnpj": null
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/orders": {
+      "post": {
+        "operationId": "CreateOrder",
+        "tags": [
+          "Orders"
+        ],
+        "summary": "CreateOrder",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Replay de criação já persistida, com o mesmo corpo original.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "id": "00000000-0000-4000-8000-000000000005",
+                      "protocol": "VB-00000001",
+                      "createdAtUtc": "2026-10-08T00:35:00Z",
+                      "requestedDate": "2026-10-08",
+                      "fulfillmentType": "Delivery",
+                      "status": "Received",
+                      "total": 20,
+                      "version": 1,
+                      "clientRequestId": "00000000-0000-4000-8000-000000000103",
+                      "customerId": "00000000-0000-4000-8000-000000000001",
+                      "customer": {
+                        "name": "Cliente de demonstração",
+                        "phone": "11999999999"
+                      },
+                      "paymentMethod": {
+                        "id": "00000000-0000-4000-8000-000000000004",
+                        "code": "Cash",
+                        "name": "Dinheiro"
+                      },
+                      "deliveryAddress": {
+                        "postalCode": "01001000",
+                        "street": "Rua Exemplo",
+                        "number": "123",
+                        "complement": null,
+                        "district": "Centro",
+                        "city": "São Paulo",
+                        "state": "SP",
+                        "reference": null
+                      },
+                      "notes": null,
+                      "cashTendered": 50,
+                      "changeDue": 30,
+                      "deliveryFee": 0,
+                      "updatedAtUtc": "2026-10-08T00:35:00Z",
+                      "items": [
+                        {
+                          "productId": "00000000-0000-4000-8000-000000000003",
+                          "productName": "VanderBeer Pilsen 350 ml",
+                          "unitLabel": "Lata 350 ml",
+                          "quantity": 2,
+                          "unitPrice": 10,
+                          "subtotal": 20
+                        }
+                      ],
+                      "statusHistory": [
+                        {
+                          "sequence": 1,
+                          "fromStatus": null,
+                          "toStatus": "Received",
+                          "occurredAtUtc": "2026-10-08T00:35:00Z",
+                          "reason": null
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Idempotent-Replay": {
+                "description": "true em resposta recuperada; false na primeira execução.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Criado e confirmado no banco.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "id": "00000000-0000-4000-8000-000000000005",
+                      "protocol": "VB-00000001",
+                      "createdAtUtc": "2026-10-08T00:35:00Z",
+                      "requestedDate": "2026-10-08",
+                      "fulfillmentType": "Delivery",
+                      "status": "Received",
+                      "total": 20,
+                      "version": 1,
+                      "clientRequestId": "00000000-0000-4000-8000-000000000103",
+                      "customerId": "00000000-0000-4000-8000-000000000001",
+                      "customer": {
+                        "name": "Cliente de demonstração",
+                        "phone": "11999999999"
+                      },
+                      "paymentMethod": {
+                        "id": "00000000-0000-4000-8000-000000000004",
+                        "code": "Cash",
+                        "name": "Dinheiro"
+                      },
+                      "deliveryAddress": {
+                        "postalCode": "01001000",
+                        "street": "Rua Exemplo",
+                        "number": "123",
+                        "complement": null,
+                        "district": "Centro",
+                        "city": "São Paulo",
+                        "state": "SP",
+                        "reference": null
+                      },
+                      "notes": null,
+                      "cashTendered": 50,
+                      "changeDue": 30,
+                      "deliveryFee": 0,
+                      "updatedAtUtc": "2026-10-08T00:35:00Z",
+                      "items": [
+                        {
+                          "productId": "00000000-0000-4000-8000-000000000003",
+                          "productName": "VanderBeer Pilsen 350 ml",
+                          "unitLabel": "Lata 350 ml",
+                          "quantity": 2,
+                          "unitPrice": 10,
+                          "subtotal": 20
+                        }
+                      ],
+                      "statusHistory": [
+                        {
+                          "sequence": 1,
+                          "fromStatus": null,
+                          "toStatus": "Received",
+                          "occurredAtUtc": "2026-10-08T00:35:00Z",
+                          "reason": null
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "description": "URL do recurso criado.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Idempotent-Replay": {
+                "description": "true em resposta recuperada; false na primeira execução.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "409": {
+            "description": "Conflito",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Conflito",
+                      "status": 409,
+                      "detail": "Consulte code e errors.",
+                      "code": "RequestKeyConflict",
+                      "traceId": "demo-trace-001",
+                      "errors": [],
+                      "currentVersion": null,
+                      "priceChanges": [],
+                      "currentTotal": null
+                    }
+                  },
+                  "priceChanged": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Conflito",
+                      "status": 409,
+                      "detail": "O preço mudou. Revise antes de enviar.",
+                      "code": "PriceChanged",
+                      "traceId": "demo-trace-001",
+                      "errors": [],
+                      "currentVersion": null,
+                      "priceChanges": [
+                        {
+                          "productId": "00000000-0000-4000-8000-000000000003",
+                          "expectedUnitPrice": 10,
+                          "currentUnitPrice": 12
+                        }
+                      ],
+                      "currentTotal": 24
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Idempotent-Replay": {
+                "description": "Presente nas rejeições comerciais com recibo.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateOrderRequest"
+              },
+              "examples": {
+                "demo": {
+                  "value": {
+                    "clientRequestId": "00000000-0000-4000-8000-000000000103",
+                    "customerId": "00000000-0000-4000-8000-000000000001",
+                    "expectedCustomerVersion": 1,
+                    "fulfillmentType": "Delivery",
+                    "requestedDate": "2026-10-08",
+                    "paymentMethodId": "00000000-0000-4000-8000-000000000004",
+                    "cashTendered": 50,
+                    "deliveryAddress": {
+                      "postalCode": "01001000",
+                      "street": "Rua Exemplo",
+                      "number": "123",
+                      "complement": null,
+                      "district": "Centro",
+                      "city": "São Paulo",
+                      "state": "SP",
+                      "reference": null
+                    },
+                    "notes": null,
+                    "items": [
+                      {
+                        "productId": "00000000-0000-4000-8000-000000000003",
+                        "quantity": 2,
+                        "expectedUnitPrice": 10
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/customers/{id}/orders": {
+      "get": {
+        "operationId": "GetCustomerOrders",
+        "tags": [
+          "Orders"
+        ],
+        "summary": "GetCustomerOrders",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderPage"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "items": [
+                        {
+                          "id": "00000000-0000-4000-8000-000000000005",
+                          "protocol": "VB-00000001",
+                          "createdAtUtc": "2026-10-08T00:35:00Z",
+                          "requestedDate": "2026-10-08",
+                          "fulfillmentType": "Delivery",
+                          "status": "Received",
+                          "total": 20,
+                          "version": 1
+                        }
+                      ],
+                      "page": 1,
+                      "pageSize": 20,
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        }
+      }
+    },
+    "/api/v1/orders/{id}": {
+      "get": {
+        "operationId": "GetOrder",
+        "tags": [
+          "Orders"
+        ],
+        "summary": "GetOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "id": "00000000-0000-4000-8000-000000000005",
+                      "protocol": "VB-00000001",
+                      "createdAtUtc": "2026-10-08T00:35:00Z",
+                      "requestedDate": "2026-10-08",
+                      "fulfillmentType": "Delivery",
+                      "status": "Received",
+                      "total": 20,
+                      "version": 1,
+                      "clientRequestId": "00000000-0000-4000-8000-000000000103",
+                      "customerId": "00000000-0000-4000-8000-000000000001",
+                      "customer": {
+                        "name": "Cliente de demonstração",
+                        "phone": "11999999999"
+                      },
+                      "paymentMethod": {
+                        "id": "00000000-0000-4000-8000-000000000004",
+                        "code": "Cash",
+                        "name": "Dinheiro"
+                      },
+                      "deliveryAddress": {
+                        "postalCode": "01001000",
+                        "street": "Rua Exemplo",
+                        "number": "123",
+                        "complement": null,
+                        "district": "Centro",
+                        "city": "São Paulo",
+                        "state": "SP",
+                        "reference": null
+                      },
+                      "notes": null,
+                      "cashTendered": 50,
+                      "changeDue": 30,
+                      "deliveryFee": 0,
+                      "updatedAtUtc": "2026-10-08T00:35:00Z",
+                      "items": [
+                        {
+                          "productId": "00000000-0000-4000-8000-000000000003",
+                          "productName": "VanderBeer Pilsen 350 ml",
+                          "unitLabel": "Lata 350 ml",
+                          "quantity": 2,
+                          "unitPrice": 10,
+                          "subtotal": 20
+                        }
+                      ],
+                      "statusHistory": [
+                        {
+                          "sequence": 1,
+                          "fromStatus": null,
+                          "toStatus": "Received",
+                          "occurredAtUtc": "2026-10-08T00:35:00Z",
+                          "reason": null
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/products": {
+      "get": {
+        "operationId": "GetCompanyProducts",
+        "tags": [
+          "Company"
+        ],
+        "summary": "GetCompanyProducts",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "minLength": 0,
+              "maxLength": 100
+            }
+          },
+          {
+            "name": "isActive",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "categoryId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProductPage"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "items": [
+                        {
+                          "id": "00000000-0000-4000-8000-000000000003",
+                          "categoryId": "00000000-0000-4000-8000-000000000002",
+                          "sku": "VB-PILSEN-350",
+                          "name": "VanderBeer Pilsen 350 ml",
+                          "description": "Produto de demonstração.",
+                          "unitLabel": "Lata 350 ml",
+                          "price": 10,
+                          "imageUrl": null,
+                          "isAvailable": true,
+                          "isActive": true,
+                          "version": 1,
+                          "updatedAtUtc": "2026-10-08T00:20:00Z"
+                        }
+                      ],
+                      "page": 1,
+                      "pageSize": 20,
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        }
+      },
+      "post": {
+        "operationId": "CreateProduct",
+        "tags": [
+          "Company"
+        ],
+        "summary": "CreateProduct",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Replay de criação já persistida, com o mesmo corpo original.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "id": "00000000-0000-4000-8000-000000000003",
+                      "categoryId": "00000000-0000-4000-8000-000000000002",
+                      "sku": "VB-PILSEN-350",
+                      "name": "VanderBeer Pilsen 350 ml",
+                      "description": "Produto de demonstração.",
+                      "unitLabel": "Lata 350 ml",
+                      "price": 10,
+                      "imageUrl": null,
+                      "isAvailable": true,
+                      "isActive": true,
+                      "version": 1,
+                      "updatedAtUtc": "2026-10-08T00:20:00Z"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Idempotent-Replay": {
+                "description": "true em resposta recuperada; false na primeira execução.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "Criado e confirmado no banco.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "id": "00000000-0000-4000-8000-000000000003",
+                      "categoryId": "00000000-0000-4000-8000-000000000002",
+                      "sku": "VB-PILSEN-350",
+                      "name": "VanderBeer Pilsen 350 ml",
+                      "description": "Produto de demonstração.",
+                      "unitLabel": "Lata 350 ml",
+                      "price": 10,
+                      "imageUrl": null,
+                      "isAvailable": true,
+                      "isActive": true,
+                      "version": 1,
+                      "updatedAtUtc": "2026-10-08T00:20:00Z"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Location": {
+                "description": "URL do recurso criado.",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Idempotent-Replay": {
+                "description": "true em resposta recuperada; false na primeira execução.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "409": {
+            "description": "Conflito",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Conflito",
+                      "status": 409,
+                      "detail": "Consulte code e errors.",
+                      "code": "RequestKeyConflict",
+                      "traceId": "demo-trace-001",
+                      "errors": [],
+                      "currentVersion": null,
+                      "priceChanges": [],
+                      "currentTotal": null
+                    }
+                  },
+                  "duplicateSku": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Conflito",
+                      "status": 409,
+                      "detail": "SKU já cadastrado.",
+                      "code": "DuplicateSku",
+                      "traceId": "demo-trace-001",
+                      "errors": [
+                        {
+                          "field": "sku",
+                          "message": "Informe um SKU diferente."
+                        }
+                      ],
+                      "currentVersion": null,
+                      "priceChanges": [],
+                      "currentTotal": null
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Idempotent-Replay": {
+                "description": "Presente nas rejeições comerciais com recibo.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProductRequest"
+              },
+              "examples": {
+                "demo": {
+                  "value": {
+                    "clientRequestId": "00000000-0000-4000-8000-000000000102",
+                    "categoryId": "00000000-0000-4000-8000-000000000002",
+                    "sku": "VB-PILSEN-350",
+                    "name": "VanderBeer Pilsen 350 ml",
+                    "description": "Produto de demonstração.",
+                    "unitLabel": "Lata 350 ml",
+                    "price": 10,
+                    "imageUrl": null,
+                    "isAvailable": true,
+                    "isActive": true
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/products/{id}": {
+      "get": {
+        "operationId": "GetCompanyProduct",
+        "tags": [
+          "Company"
+        ],
+        "summary": "GetCompanyProduct",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "id": "00000000-0000-4000-8000-000000000003",
+                      "categoryId": "00000000-0000-4000-8000-000000000002",
+                      "sku": "VB-PILSEN-350",
+                      "name": "VanderBeer Pilsen 350 ml",
+                      "description": "Produto de demonstração.",
+                      "unitLabel": "Lata 350 ml",
+                      "price": 10,
+                      "imageUrl": null,
+                      "isAvailable": true,
+                      "isActive": true,
+                      "version": 1,
+                      "updatedAtUtc": "2026-10-08T00:20:00Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        }
+      },
+      "put": {
+        "operationId": "UpdateProduct",
+        "tags": [
+          "Company"
+        ],
+        "summary": "UpdateProduct",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Product"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "id": "00000000-0000-4000-8000-000000000003",
+                      "categoryId": "00000000-0000-4000-8000-000000000002",
+                      "sku": "VB-PILSEN-350",
+                      "name": "VanderBeer Pilsen 350 ml",
+                      "description": "Produto de demonstração.",
+                      "unitLabel": "Lata 350 ml",
+                      "price": 10,
+                      "imageUrl": null,
+                      "isAvailable": true,
+                      "isActive": true,
+                      "version": 2,
+                      "updatedAtUtc": "2026-10-08T00:40:00Z"
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Idempotent-Replay": {
+                "description": "true em resposta recuperada; false na primeira execução.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "409": {
+            "description": "Conflito",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Conflito",
+                      "status": 409,
+                      "detail": "Consulte code e errors.",
+                      "code": "RequestKeyConflict",
+                      "traceId": "demo-trace-001",
+                      "errors": [],
+                      "currentVersion": null,
+                      "priceChanges": [],
+                      "currentTotal": null
+                    }
+                  },
+                  "versionConflict": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Conflito",
+                      "status": 409,
+                      "detail": "O registro mudou. Atualize e revise.",
+                      "code": "ProductVersionConflict",
+                      "traceId": "demo-trace-002",
+                      "errors": [],
+                      "currentVersion": 2,
+                      "priceChanges": [],
+                      "currentTotal": null
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Idempotent-Replay": {
+                "description": "Presente nas rejeições comerciais com recibo.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProductRequest"
+              },
+              "examples": {
+                "demo": {
+                  "value": {
+                    "clientRequestId": "00000000-0000-4000-8000-000000000105",
+                    "categoryId": "00000000-0000-4000-8000-000000000002",
+                    "sku": "VB-PILSEN-350",
+                    "name": "VanderBeer Pilsen 350 ml",
+                    "description": "Produto de demonstração.",
+                    "unitLabel": "Lata 350 ml",
+                    "price": 10,
+                    "imageUrl": null,
+                    "isAvailable": true,
+                    "isActive": true,
+                    "expectedVersion": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/orders": {
+      "get": {
+        "operationId": "GetCompanyOrders",
+        "tags": [
+          "Company"
+        ],
+        "summary": "GetCompanyOrders",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/OrderStatus"
+            }
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderPage"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "items": [
+                        {
+                          "id": "00000000-0000-4000-8000-000000000005",
+                          "protocol": "VB-00000001",
+                          "createdAtUtc": "2026-10-08T00:35:00Z",
+                          "requestedDate": "2026-10-08",
+                          "fulfillmentType": "Delivery",
+                          "status": "Received",
+                          "total": 20,
+                          "version": 1
+                        }
+                      ],
+                      "page": 1,
+                      "pageSize": 20,
+                      "total": 1
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/orders/{id}": {
+      "get": {
+        "operationId": "GetCompanyOrder",
+        "tags": [
+          "Company"
+        ],
+        "summary": "GetCompanyOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "id": "00000000-0000-4000-8000-000000000005",
+                      "protocol": "VB-00000001",
+                      "createdAtUtc": "2026-10-08T00:35:00Z",
+                      "requestedDate": "2026-10-08",
+                      "fulfillmentType": "Delivery",
+                      "status": "Received",
+                      "total": 20,
+                      "version": 1,
+                      "clientRequestId": "00000000-0000-4000-8000-000000000103",
+                      "customerId": "00000000-0000-4000-8000-000000000001",
+                      "customer": {
+                        "name": "Cliente de demonstração",
+                        "phone": "11999999999"
+                      },
+                      "paymentMethod": {
+                        "id": "00000000-0000-4000-8000-000000000004",
+                        "code": "Cash",
+                        "name": "Dinheiro"
+                      },
+                      "deliveryAddress": {
+                        "postalCode": "01001000",
+                        "street": "Rua Exemplo",
+                        "number": "123",
+                        "complement": null,
+                        "district": "Centro",
+                        "city": "São Paulo",
+                        "state": "SP",
+                        "reference": null
+                      },
+                      "notes": null,
+                      "cashTendered": 50,
+                      "changeDue": 30,
+                      "deliveryFee": 0,
+                      "updatedAtUtc": "2026-10-08T00:35:00Z",
+                      "items": [
+                        {
+                          "productId": "00000000-0000-4000-8000-000000000003",
+                          "productName": "VanderBeer Pilsen 350 ml",
+                          "unitLabel": "Lata 350 ml",
+                          "quantity": 2,
+                          "unitPrice": 10,
+                          "subtotal": 20
+                        }
+                      ],
+                      "statusHistory": [
+                        {
+                          "sequence": 1,
+                          "fromStatus": null,
+                          "toStatus": "Received",
+                          "occurredAtUtc": "2026-10-08T00:35:00Z",
+                          "reason": null
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        }
+      }
+    },
+    "/api/v1/admin/orders/{id}/status": {
+      "patch": {
+        "operationId": "UpdateOrderStatus",
+        "tags": [
+          "Company"
+        ],
+        "summary": "UpdateOrderStatus",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Order"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "id": "00000000-0000-4000-8000-000000000005",
+                      "protocol": "VB-00000001",
+                      "createdAtUtc": "2026-10-08T00:35:00Z",
+                      "requestedDate": "2026-10-08",
+                      "fulfillmentType": "Delivery",
+                      "status": "Confirmed",
+                      "total": 20,
+                      "version": 2,
+                      "clientRequestId": "00000000-0000-4000-8000-000000000103",
+                      "customerId": "00000000-0000-4000-8000-000000000001",
+                      "customer": {
+                        "name": "Cliente de demonstração",
+                        "phone": "11999999999"
+                      },
+                      "paymentMethod": {
+                        "id": "00000000-0000-4000-8000-000000000004",
+                        "code": "Cash",
+                        "name": "Dinheiro"
+                      },
+                      "deliveryAddress": {
+                        "postalCode": "01001000",
+                        "street": "Rua Exemplo",
+                        "number": "123",
+                        "complement": null,
+                        "district": "Centro",
+                        "city": "São Paulo",
+                        "state": "SP",
+                        "reference": null
+                      },
+                      "notes": null,
+                      "cashTendered": 50,
+                      "changeDue": 30,
+                      "deliveryFee": 0,
+                      "updatedAtUtc": "2026-10-08T00:40:00Z",
+                      "items": [
+                        {
+                          "productId": "00000000-0000-4000-8000-000000000003",
+                          "productName": "VanderBeer Pilsen 350 ml",
+                          "unitLabel": "Lata 350 ml",
+                          "quantity": 2,
+                          "unitPrice": 10,
+                          "subtotal": 20
+                        }
+                      ],
+                      "statusHistory": [
+                        {
+                          "sequence": 1,
+                          "fromStatus": null,
+                          "toStatus": "Received",
+                          "occurredAtUtc": "2026-10-08T00:35:00Z",
+                          "reason": null
+                        },
+                        {
+                          "sequence": 2,
+                          "fromStatus": "Received",
+                          "toStatus": "Confirmed",
+                          "occurredAtUtc": "2026-10-08T00:40:00Z",
+                          "reason": null
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Idempotent-Replay": {
+                "description": "true em resposta recuperada; false na primeira execução.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "409": {
+            "description": "Conflito",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problem"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Conflito",
+                      "status": 409,
+                      "detail": "Consulte code e errors.",
+                      "code": "RequestKeyConflict",
+                      "traceId": "demo-trace-001",
+                      "errors": [],
+                      "currentVersion": null,
+                      "priceChanges": [],
+                      "currentTotal": null
+                    }
+                  },
+                  "invalidTransition": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Conflito",
+                      "status": 409,
+                      "detail": "O pedido precisa estar em preparo antes de sair para entrega.",
+                      "code": "InvalidOrderTransition",
+                      "traceId": "demo-trace-001",
+                      "errors": [],
+                      "currentVersion": 1,
+                      "priceChanges": [],
+                      "currentTotal": null
+                    }
+                  },
+                  "versionConflict": {
+                    "value": {
+                      "type": "about:blank",
+                      "title": "Conflito",
+                      "status": 409,
+                      "detail": "O registro mudou. Atualize e revise.",
+                      "code": "OrderVersionConflict",
+                      "traceId": "demo-trace-002",
+                      "errors": [],
+                      "currentVersion": 2,
+                      "priceChanges": [],
+                      "currentTotal": null
+                    }
+                  }
+                }
+              }
+            },
+            "headers": {
+              "Idempotent-Replay": {
+                "description": "Presente nas rejeições comerciais com recibo.",
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateOrderStatusRequest"
+              },
+              "examples": {
+                "demo": {
+                  "value": {
+                    "clientRequestId": "00000000-0000-4000-8000-000000000106",
+                    "expectedVersion": 1,
+                    "status": "Confirmed",
+                    "reason": null
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "operationId": "GetHealth",
+        "tags": [
+          "Operations"
+        ],
+        "summary": "GetHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Resultado.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                },
+                "examples": {
+                  "demo": {
+                    "value": {
+                      "status": "Healthy"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalError"
+          },
+          "503": {
+            "$ref": "#/components/responses/UnavailableError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Uuid": {
+        "type": "string",
+        "format": "uuid",
+        "pattern": "^(?!00000000-0000-0000-0000-000000000000$)[0-9a-fA-F-]{36}$"
+      },
+      "Version": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 2147483647
+      },
+      "Money": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 999999.99,
+        "multipleOf": 0.01
+      },
+      "Price": {
+        "type": "number",
+        "minimum": 0.01,
+        "maximum": 99999.99,
+        "multipleOf": 0.01
+      },
+      "Quantity": {
+        "type": "integer",
+        "minimum": 1,
+        "maximum": 999
+      },
+      "OrderStatus": {
+        "type": "string",
+        "enum": [
+          "Received",
+          "Confirmed",
+          "Preparing",
+          "OutForDelivery",
+          "Delivered",
+          "ReadyForPickup",
+          "Collected",
+          "Rejected",
+          "Cancelled"
+        ]
+      },
+      "FulfillmentType": {
+        "type": "string",
+        "enum": [
+          "Delivery",
+          "Pickup"
+        ]
+      },
+      "PaymentCode": {
+        "type": "string",
+        "enum": [
+          "Cash",
+          "CardOnFulfillment",
+          "PixOnFulfillment"
+        ]
+      },
+      "Address": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "postalCode",
+          "street",
+          "number",
+          "complement",
+          "district",
+          "city",
+          "state",
+          "reference"
+        ],
+        "properties": {
+          "postalCode": {
+            "type": "string",
+            "minLength": 8,
+            "maxLength": 8,
+            "pattern": "^[0-9]{8}$"
+          },
+          "street": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "number": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 20
+          },
+          "complement": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "district": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 80
+          },
+          "city": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 80
+          },
+          "state": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 2,
+            "pattern": "^(AC|AL|AP|AM|BA|CE|DF|ES|GO|MA|MT|MS|MG|PA|PB|PR|PE|PI|RJ|RN|RS|RO|RR|SC|SP|SE|TO)$"
+          },
+          "reference": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 80
+          }
+        }
+      },
+      "PaymentMethod": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "code",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "code": {
+            "$ref": "#/components/schemas/PaymentCode"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 60
+          }
+        }
+      },
+      "StoreSettings": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "storeName",
+          "timeZone",
+          "currency",
+          "today",
+          "minRequestedDate",
+          "maxRequestedDate",
+          "deliveryFee",
+          "maxDistinctItems",
+          "maxQuantityPerItem",
+          "maxOrderTotal"
+        ],
+        "properties": {
+          "storeName": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 80
+          },
+          "timeZone": {
+            "type": "string",
+            "const": "America/Sao_Paulo"
+          },
+          "currency": {
+            "type": "string",
+            "const": "BRL"
+          },
+          "today": {
+            "type": "string",
+            "format": "date"
+          },
+          "minRequestedDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "maxRequestedDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "deliveryFee": {
+            "type": "number",
+            "const": 0
+          },
+          "maxDistinctItems": {
+            "type": "integer",
+            "const": 50
+          },
+          "maxQuantityPerItem": {
+            "type": "integer",
+            "const": 999
+          },
+          "maxOrderTotal": {
+            "type": "number",
+            "const": 999999.99
+          }
+        }
+      },
+      "CreateCustomerRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "clientRequestId",
+          "customerType",
+          "fullName",
+          "companyName",
+          "cpf",
+          "cnpj",
+          "phone",
+          "email",
+          "address"
+        ],
+        "properties": {
+          "clientRequestId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "fullName": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 120
+          },
+          "cpf": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 11,
+                "maxLength": 11,
+                "pattern": "^[0-9]{11}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 11,
+            "pattern": "^[0-9]{10,11}$"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 254,
+                "format": "email"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "address": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "customerType": {
+            "$ref": "#/components/schemas/CustomerType"
+          },
+          "companyName": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cnpj": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 14,
+                "maxLength": 14,
+                "pattern": "^[A-Z0-9]{12}[0-9]{2}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "description": "Individual exige cpf e companyName/cnpj null; Business exige companyName/cnpj e cpf null. fullName é o contato responsável. Dígitos verificadores são validados pela API."
+      },
+      "UpdateCustomerRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "clientRequestId",
+          "expectedVersion",
+          "customerType",
+          "fullName",
+          "companyName",
+          "cpf",
+          "cnpj",
+          "phone",
+          "email",
+          "address"
+        ],
+        "properties": {
+          "clientRequestId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "expectedVersion": {
+            "$ref": "#/components/schemas/Version"
+          },
+          "fullName": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 120
+          },
+          "cpf": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 11,
+                "maxLength": 11,
+                "pattern": "^[0-9]{11}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 11,
+            "pattern": "^[0-9]{10,11}$"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 254,
+                "format": "email"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "address": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "customerType": {
+            "$ref": "#/components/schemas/CustomerType"
+          },
+          "companyName": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cnpj": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 14,
+                "maxLength": 14,
+                "pattern": "^[A-Z0-9]{12}[0-9]{2}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "description": "Individual exige cpf e companyName/cnpj null; Business exige companyName/cnpj e cpf null. fullName é o contato responsável. Dígitos verificadores são validados pela API."
+      },
+      "Customer": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "customerType",
+          "fullName",
+          "companyName",
+          "cpf",
+          "cnpj",
+          "phone",
+          "email",
+          "address",
+          "version",
+          "createdAtUtc",
+          "updatedAtUtc"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "fullName": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 120
+          },
+          "cpf": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 11,
+                "maxLength": 11,
+                "pattern": "^[0-9]{11}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 11,
+            "pattern": "^[0-9]{10,11}$"
+          },
+          "email": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 254,
+                "format": "email"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "address": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "version": {
+            "$ref": "#/components/schemas/Version"
+          },
+          "createdAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "customerType": {
+            "$ref": "#/components/schemas/CustomerType"
+          },
+          "companyName": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cnpj": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 14,
+                "maxLength": 14,
+                "pattern": "^[A-Z0-9]{12}[0-9]{2}$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "description": "Individual exige cpf e companyName/cnpj null; Business exige companyName/cnpj e cpf null. fullName é o contato responsável. Dígitos verificadores são validados pela API."
+      },
+      "CreateProductRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "clientRequestId",
+          "categoryId",
+          "sku",
+          "name",
+          "description",
+          "unitLabel",
+          "price",
+          "imageUrl",
+          "isAvailable",
+          "isActive"
+        ],
+        "properties": {
+          "clientRequestId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "categoryId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "sku": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40,
+            "pattern": "^[A-Z0-9][A-Z0-9_-]{0,39}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unitLabel": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "price": {
+            "$ref": "#/components/schemas/Price"
+          },
+          "imageUrl": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024,
+                "format": "uri",
+                "pattern": "^https?://"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "UpdateProductRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "clientRequestId",
+          "expectedVersion",
+          "categoryId",
+          "sku",
+          "name",
+          "description",
+          "unitLabel",
+          "price",
+          "imageUrl",
+          "isAvailable",
+          "isActive"
+        ],
+        "properties": {
+          "clientRequestId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "expectedVersion": {
+            "$ref": "#/components/schemas/Version"
+          },
+          "categoryId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "sku": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40,
+            "pattern": "^[A-Z0-9][A-Z0-9_-]{0,39}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unitLabel": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "price": {
+            "$ref": "#/components/schemas/Price"
+          },
+          "imageUrl": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024,
+                "format": "uri",
+                "pattern": "^https?://"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "categoryId",
+          "sku",
+          "name",
+          "description",
+          "unitLabel",
+          "price",
+          "imageUrl",
+          "isAvailable",
+          "isActive",
+          "version",
+          "updatedAtUtc"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "categoryId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "sku": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40,
+            "pattern": "^[A-Z0-9][A-Z0-9_-]{0,39}$"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "description": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 2000
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "unitLabel": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "price": {
+            "$ref": "#/components/schemas/Price"
+          },
+          "imageUrl": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 1024,
+                "format": "uri",
+                "pattern": "^https?://"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "isAvailable": {
+            "type": "boolean"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "version": {
+            "$ref": "#/components/schemas/Version"
+          },
+          "updatedAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "OrderLineRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "productId",
+          "quantity",
+          "expectedUnitPrice"
+        ],
+        "properties": {
+          "productId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "quantity": {
+            "$ref": "#/components/schemas/Quantity"
+          },
+          "expectedUnitPrice": {
+            "$ref": "#/components/schemas/Price"
+          }
+        }
+      },
+      "CreateOrderRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "clientRequestId",
+          "customerId",
+          "expectedCustomerVersion",
+          "fulfillmentType",
+          "requestedDate",
+          "paymentMethodId",
+          "cashTendered",
+          "deliveryAddress",
+          "notes",
+          "items"
+        ],
+        "properties": {
+          "clientRequestId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "customerId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "expectedCustomerVersion": {
+            "$ref": "#/components/schemas/Version"
+          },
+          "fulfillmentType": {
+            "$ref": "#/components/schemas/FulfillmentType"
+          },
+          "requestedDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "paymentMethodId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "cashTendered": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "deliveryAddress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 50,
+            "items": {
+              "$ref": "#/components/schemas/OrderLineRequest"
+            }
+          }
+        }
+      },
+      "OrderItem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "productId",
+          "productName",
+          "unitLabel",
+          "quantity",
+          "unitPrice",
+          "subtotal"
+        ],
+        "properties": {
+          "productId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "productName": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "unitLabel": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "quantity": {
+            "$ref": "#/components/schemas/Quantity"
+          },
+          "unitPrice": {
+            "$ref": "#/components/schemas/Price"
+          },
+          "subtotal": {
+            "$ref": "#/components/schemas/Money"
+          }
+        }
+      },
+      "StatusEvent": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "sequence",
+          "fromStatus",
+          "toStatus",
+          "occurredAtUtc",
+          "reason"
+        ],
+        "properties": {
+          "sequence": {
+            "$ref": "#/components/schemas/Version"
+          },
+          "fromStatus": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/OrderStatus"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "toStatus": {
+            "$ref": "#/components/schemas/OrderStatus"
+          },
+          "occurredAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "CustomerSnapshot": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "phone"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 120
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 11,
+            "pattern": "^[0-9]{10,11}$"
+          }
+        }
+      },
+      "PaymentSnapshot": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "code",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "code": {
+            "$ref": "#/components/schemas/PaymentCode"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 60
+          }
+        }
+      },
+      "OrderSummary": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "protocol",
+          "createdAtUtc",
+          "requestedDate",
+          "fulfillmentType",
+          "status",
+          "total",
+          "version"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "protocol": {
+            "type": "string",
+            "minLength": 11,
+            "maxLength": 22,
+            "pattern": "^VB-[0-9]{8,19}$"
+          },
+          "createdAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requestedDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "fulfillmentType": {
+            "$ref": "#/components/schemas/FulfillmentType"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderStatus"
+          },
+          "total": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "version": {
+            "$ref": "#/components/schemas/Version"
+          }
+        }
+      },
+      "Order": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "protocol",
+          "createdAtUtc",
+          "requestedDate",
+          "fulfillmentType",
+          "status",
+          "total",
+          "version",
+          "clientRequestId",
+          "customerId",
+          "customer",
+          "paymentMethod",
+          "deliveryAddress",
+          "notes",
+          "cashTendered",
+          "changeDue",
+          "deliveryFee",
+          "updatedAtUtc",
+          "items",
+          "statusHistory"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "protocol": {
+            "type": "string",
+            "minLength": 11,
+            "maxLength": 22,
+            "pattern": "^VB-[0-9]{8,19}$"
+          },
+          "createdAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requestedDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "fulfillmentType": {
+            "$ref": "#/components/schemas/FulfillmentType"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderStatus"
+          },
+          "total": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "version": {
+            "$ref": "#/components/schemas/Version"
+          },
+          "clientRequestId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "customerId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "customer": {
+            "$ref": "#/components/schemas/CustomerSnapshot"
+          },
+          "paymentMethod": {
+            "$ref": "#/components/schemas/PaymentSnapshot"
+          },
+          "deliveryAddress": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Address"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "notes": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "cashTendered": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "changeDue": {
+            "$ref": "#/components/schemas/Money"
+          },
+          "deliveryFee": {
+            "type": "number",
+            "const": 0
+          },
+          "updatedAtUtc": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 50,
+            "items": {
+              "$ref": "#/components/schemas/OrderItem"
+            }
+          },
+          "statusHistory": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 20,
+            "items": {
+              "$ref": "#/components/schemas/StatusEvent"
+            }
+          }
+        }
+      },
+      "UpdateOrderStatusRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "clientRequestId",
+          "expectedVersion",
+          "status",
+          "reason"
+        ],
+        "properties": {
+          "clientRequestId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "expectedVersion": {
+            "$ref": "#/components/schemas/Version"
+          },
+          "status": {
+            "$ref": "#/components/schemas/OrderStatus"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 300
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "ProductPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/Product"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "OrderPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "page",
+          "pageSize",
+          "total"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 100,
+            "items": {
+              "$ref": "#/components/schemas/OrderSummary"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "pageSize": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "FieldError": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "field",
+          "message"
+        ],
+        "properties": {
+          "field": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 160
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        }
+      },
+      "PriceChange": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "productId",
+          "expectedUnitPrice",
+          "currentUnitPrice"
+        ],
+        "properties": {
+          "productId": {
+            "$ref": "#/components/schemas/Uuid"
+          },
+          "expectedUnitPrice": {
+            "$ref": "#/components/schemas/Price"
+          },
+          "currentUnitPrice": {
+            "$ref": "#/components/schemas/Price"
+          }
+        }
+      },
+      "Problem": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "code",
+          "traceId",
+          "errors",
+          "currentVersion",
+          "priceChanges",
+          "currentTotal"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "about:blank"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              400,
+              404,
+              409,
+              500,
+              503
+            ]
+          },
+          "detail": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "ValidationFailed",
+              "DuplicateCpf",
+              "DuplicateCnpj",
+              "DuplicateSku",
+              "NotFound",
+              "RequestKeyConflict",
+              "CustomerVersionConflict",
+              "ProductVersionConflict",
+              "OrderVersionConflict",
+              "PriceChanged",
+              "ProductUnavailable",
+              "PaymentMethodUnavailable",
+              "CategoryUnavailable",
+              "InvalidOrderTransition",
+              "ServiceUnavailable",
+              "InternalError"
+            ]
+          },
+          "traceId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "errors": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 200,
+            "items": {
+              "$ref": "#/components/schemas/FieldError"
+            }
+          },
+          "currentVersion": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Version"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "priceChanges": {
+            "type": "array",
+            "minItems": 0,
+            "maxItems": 50,
+            "items": {
+              "$ref": "#/components/schemas/PriceChange"
+            }
+          },
+          "currentTotal": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/Money"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "Health": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "status"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "Healthy"
+          }
+        }
+      },
+      "CustomerType": {
+        "type": "string",
+        "enum": [
+          "Individual",
+          "Business"
+        ]
+      }
+    },
+    "responses": {
+      "ValidationError": {
+        "description": "Dados inválidos",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            },
+            "examples": {
+              "demo": {
+                "value": {
+                  "type": "about:blank",
+                  "title": "Dados inválidos",
+                  "status": 400,
+                  "detail": "Consulte code e errors.",
+                  "code": "ValidationFailed",
+                  "traceId": "demo-trace-001",
+                  "errors": [],
+                  "currentVersion": null,
+                  "priceChanges": [],
+                  "currentTotal": null
+                }
+              }
+            }
+          }
+        }
+      },
+      "InternalError": {
+        "description": "Erro interno",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            },
+            "examples": {
+              "demo": {
+                "value": {
+                  "type": "about:blank",
+                  "title": "Erro interno",
+                  "status": 500,
+                  "detail": "Consulte code e errors.",
+                  "code": "InternalError",
+                  "traceId": "demo-trace-001",
+                  "errors": [],
+                  "currentVersion": null,
+                  "priceChanges": [],
+                  "currentTotal": null
+                }
+              }
+            }
+          }
+        }
+      },
+      "UnavailableError": {
+        "description": "Serviço indisponível",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            },
+            "examples": {
+              "demo": {
+                "value": {
+                  "type": "about:blank",
+                  "title": "Serviço indisponível",
+                  "status": 503,
+                  "detail": "Tente novamente mais tarde.",
+                  "code": "ServiceUnavailable",
+                  "traceId": "demo-trace-001",
+                  "errors": [],
+                  "currentVersion": null,
+                  "priceChanges": [],
+                  "currentTotal": null
+                }
+              }
+            }
+          }
+        },
+        "headers": {
+          "Retry-After": {
+            "description": "Espera mínima em segundos quando conhecida.",
+            "schema": {
+              "type": "integer",
+              "minimum": 1
+            }
+          }
+        }
+      },
+      "NotFoundError": {
+        "description": "Recurso não encontrado",
+        "content": {
+          "application/problem+json": {
+            "schema": {
+              "$ref": "#/components/schemas/Problem"
+            },
+            "examples": {
+              "demo": {
+                "value": {
+                  "type": "about:blank",
+                  "title": "Recurso não encontrado",
+                  "status": 404,
+                  "detail": "Consulte code e errors.",
+                  "code": "NotFound",
+                  "traceId": "demo-trace-001",
+                  "errors": [],
+                  "currentVersion": null,
+                  "priceChanges": [],
+                  "currentTotal": null
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "security": []
+}

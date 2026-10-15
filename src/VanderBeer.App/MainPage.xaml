@@ -1,0 +1,462 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="VanderBeer.App.MainPage" x:Name="RootPage" Title="VanderBeer"
+             BackgroundColor="{AppThemeBinding Light=#FAF8F3, Dark=#171512}">
+    <Grid x:Name="AppLayout" RowDefinitions="Auto,*,Auto" ColumnDefinitions="Auto,*">
+        <Border Grid.ColumnSpan="2" BackgroundColor="{AppThemeBinding Light=#30231B, Dark=#211B16}" StrokeThickness="0" Padding="20,14">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                <VerticalStackLayout>
+                    <Label Text="{Binding AreaTitle}" FontSize="26" FontAttributes="Bold" TextColor="#FFF8EB" SemanticProperties.HeadingLevel="Level1" />
+                    <Label Text="{Binding AreaSubtitle}" FontSize="12" TextColor="#E6D2B6" />
+                </VerticalStackLayout>
+                <Button Grid.Column="1" Text="Conexão" Clicked="OnConnectionSettings" Style="{StaticResource SecondaryButton}" FontSize="12" AutomationId="ConnectionSettings" />
+            </Grid>
+        </Border>
+        <VerticalStackLayout x:Name="DesktopNavigation" Grid.Row="1" Padding="12,20" Spacing="10" WidthRequest="200"
+                             IsVisible="False" BackgroundColor="{AppThemeBinding Light=#F0E9DF, Dark=#211B16}">
+            <VerticalStackLayout IsVisible="{Binding ShowClientNavigation}" Spacing="10">
+                <Button Text="Catálogo" Command="{Binding CatalogCommand}" Style="{StaticResource CatalogNavButton}" />
+                <Button Text="{Binding CartTabTitle}" Command="{Binding OpenCartCommand}" Style="{StaticResource CartNavButton}" />
+                <Button Text="Meus pedidos" Command="{Binding OpenOrdersCommand}" Style="{StaticResource OrdersNavButton}" />
+                <Button Text="Meu cadastro" Command="{Binding OpenProfileCommand}" Style="{StaticResource ProfileNavButton}" />
+            </VerticalStackLayout>
+            <VerticalStackLayout IsVisible="{Binding ShowCompanyNavigation}" Spacing="10">
+                <Button Text="Pedidos recebidos" Command="{Binding OpenCompanyOrdersCommand}" Style="{StaticResource CompanyOrdersNavButton}" />
+                <Button Text="Produtos" Command="{Binding BackCommand}" Style="{StaticResource ProductsNavButton}" />
+                <Button Text="Voltar ao cliente" Command="{Binding ClientCommand}" Style="{StaticResource SecondaryButton}" AutomationId="ClientTab" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    <ScrollView x:Name="ContentScroll" Grid.Row="1" Grid.Column="1">
+        <VerticalStackLayout x:Name="ContentBody" Padding="20" Spacing="12" MaximumWidthRequest="720" HorizontalOptions="Center">
+            <ActivityIndicator IsRunning="{Binding IsInitializing}" IsVisible="{Binding IsInitializing}" />
+            <VerticalStackLayout IsVisible="{Binding ShowCatalogFeedback}" Spacing="6">
+                <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+                <Label Text="{Binding Status}" AutomationId="CatalogStatus" FontSize="13" />
+                <Label Text="{Binding Error}" TextColor="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" AutomationId="CatalogError" />
+            </VerticalStackLayout>
+            <Button Text="Recuperar alteração pendente" Command="{Binding RecoverCommand}"
+                    IsVisible="{Binding ShowPendingProduct}" AutomationId="RecoverProduct" />
+
+            <VerticalStackLayout IsVisible="{Binding IsProfile}" Spacing="8">
+                <Label Text="{Binding Profile.PageTitle}" FontSize="24" FontAttributes="Bold" />
+                <Label Text="Faça seu cadastro para encomendar e acompanhar seus pedidos." IsVisible="{Binding Profile.IsInitialRegistration}" />
+                <Label Text="{Binding Profile.StepTitle}" FontAttributes="Bold" />
+                <VerticalStackLayout IsVisible="{Binding Profile.IsOverview}" Spacing="12">
+                    <Border Padding="16"><VerticalStackLayout Spacing="8">
+                        <Label Text="Dados cadastrais" FontAttributes="Bold" />
+                        <Label Text="{Binding Profile.IdentitySummary}" />
+                        <Button Text="Editar dados" Command="{Binding Profile.EditIdentityCommand}" IsEnabled="{Binding Profile.CanSave}" Style="{StaticResource SecondaryButton}" />
+                    </VerticalStackLayout></Border>
+                    <Border Padding="16"><VerticalStackLayout Spacing="8">
+                        <Label Text="Contato" FontAttributes="Bold" />
+                        <Label Text="{Binding Profile.ContactSummary}" />
+                        <Button Text="Editar contato" Command="{Binding Profile.EditContactCommand}" IsEnabled="{Binding Profile.CanSave}" Style="{StaticResource SecondaryButton}" />
+                    </VerticalStackLayout></Border>
+                    <Border Padding="16"><VerticalStackLayout Spacing="8">
+                        <Label Text="Endereço padrão" FontAttributes="Bold" />
+                        <Label Text="{Binding Profile.AddressSummary}" />
+                        <Button Text="Editar endereço" Command="{Binding Profile.EditAddressCommand}" IsEnabled="{Binding Profile.CanSave}" Style="{StaticResource SecondaryButton}" />
+                    </VerticalStackLayout></Border>
+                    <Button Text="Gestão VanderBeer — demonstração" Command="{Binding CompanyCommand}" Style="{StaticResource SecondaryButton}" AutomationId="CompanyTab" />
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Profile.IsIdentityStep}" Spacing="8" IsEnabled="{Binding Profile.CanSave}">
+                <Label Text="Tipo de cadastro" />
+                <FlexLayout Wrap="Wrap" Direction="Row">
+                    <Button Text="Pessoa física" Command="{Binding Profile.IndividualCommand}" AutomationId="IndividualType" Margin="0,0,8,8" />
+                    <Button Text="Pessoa jurídica" Command="{Binding Profile.BusinessCommand}" AutomationId="BusinessType" Margin="0,0,0,8" />
+                </FlexLayout>
+                <Label Text="Pessoa física selecionada" IsVisible="{Binding Profile.IsIndividual}" />
+                <Label Text="Pessoa jurídica selecionada" IsVisible="{Binding Profile.IsBusiness}" />
+                <Label Text="Razão social (obrigatório)" IsVisible="{Binding Profile.IsBusiness}" />
+                <Entry Text="{Binding Profile.CompanyName}" IsVisible="{Binding Profile.IsBusiness}" SemanticProperties.Description="Razão social"
+                       MaxLength="120" AutomationId="ProfileCompanyName" />
+                <Label Text="{Binding Profile.NameLabel}" />
+                <Entry Text="{Binding Profile.FullName}" MaxLength="120" AutomationId="ProfileName" SemanticProperties.Description="Nome completo ou nome do contato" />
+                <Label Text="{Binding Profile.DocumentLabel}" />
+                <Entry Text="{Binding Profile.Document}" MaxLength="18" AutomationId="ProfileDocument" SemanticProperties.Description="CPF ou CNPJ" />
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Profile.IsContactStep}" Spacing="8" IsEnabled="{Binding Profile.CanSave}">
+                <Label Text="Telefone com DDD (obrigatório)" />
+                <Entry Text="{Binding Profile.Phone}" Keyboard="Telephone" MaxLength="20" AutomationId="ProfilePhone" SemanticProperties.Description="Telefone com DDD" />
+                <Label Text="E-mail (opcional)" />
+                <Entry Text="{Binding Profile.Email}" Keyboard="Email" MaxLength="254" AutomationId="ProfileEmail" SemanticProperties.Description="E-mail" />
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Profile.IsAddressStep}" Spacing="8" IsEnabled="{Binding Profile.CanSave}">
+                <HorizontalStackLayout Spacing="8">
+                    <Label Text="Informar endereço (opcional)" VerticalTextAlignment="Center" />
+                    <Switch IsToggled="{Binding Profile.HasAddress}" AutomationId="ProfileHasAddress" />
+                </HorizontalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Profile.HasAddress}" Spacing="8">
+                    <Label Text="Ao informar endereço, CEP, rua, número, bairro, cidade e UF são obrigatórios." />
+                    <Label Text="CEP" /><Entry Text="{Binding Profile.PostalCode}" Keyboard="Numeric" MaxLength="9" AutomationId="ProfilePostalCode" SemanticProperties.Description="CEP do cadastro" />
+                    <Label Text="Rua" /><Entry Text="{Binding Profile.Street}" MaxLength="120" AutomationId="ProfileStreet" SemanticProperties.Description="Rua do cadastro" />
+                    <Label Text="Número" /><Entry Text="{Binding Profile.Number}" MaxLength="20" AutomationId="ProfileNumber" SemanticProperties.Description="Número do endereço do cadastro" />
+                    <Label Text="Complemento (opcional)" /><Entry Text="{Binding Profile.Complement}" MaxLength="80" SemanticProperties.Description="Complemento do endereço do cadastro" />
+                    <Label Text="Bairro" /><Entry Text="{Binding Profile.District}" MaxLength="80" AutomationId="ProfileDistrict" SemanticProperties.Description="Bairro do cadastro" />
+                    <Label Text="Cidade" /><Entry Text="{Binding Profile.City}" MaxLength="80" AutomationId="ProfileCity" SemanticProperties.Description="Cidade do cadastro" />
+                    <Label Text="UF" /><Entry Text="{Binding Profile.State}" MaxLength="2" AutomationId="ProfileState" SemanticProperties.Description="UF do cadastro" />
+                    <Label Text="Referência (opcional)" /><Entry Text="{Binding Profile.Reference}" MaxLength="160" SemanticProperties.Description="Referência do endereço do cadastro" />
+                </VerticalStackLayout>
+                </VerticalStackLayout>
+                <Label Text="{Binding Profile.Status}" AutomationId="ProfileStatus" />
+                <Label Text="{Binding Profile.Error}" TextColor="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" AutomationId="ProfileError" />
+                <ActivityIndicator IsRunning="{Binding Profile.IsBusy}" IsVisible="{Binding Profile.IsBusy}" />
+                <Button Text="Continuar para contato" Command="{Binding Profile.ContinueCommand}" IsVisible="{Binding Profile.CanContinueIdentity}" IsEnabled="{Binding Profile.CanSave}" />
+                <Button Text="Salvar e continuar" Command="{Binding SaveProfileCommand}" IsEnabled="{Binding Profile.CanSave}" IsVisible="{Binding Profile.CanSaveSection}"
+                        AutomationId="SaveProfile" />
+                <Button Text="Reenviar cadastro pendente" Command="{Binding RetryProfileCommand}"
+                        IsVisible="{Binding Profile.HasPending}" AutomationId="RetryProfile" />
+                <Button Text="Voltar" Command="{Binding Profile.PreviousStepCommand}" IsVisible="{Binding Profile.CanGoBack}" IsEnabled="{Binding Profile.CanSave}" Style="{StaticResource SecondaryButton}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout IsVisible="{Binding IsList}" Spacing="12">
+                <Label Text="Catálogo" IsVisible="{Binding IsClient}" FontSize="24" FontAttributes="Bold" />
+                <Label Text="Produtos" IsVisible="{Binding IsCompany}" FontSize="24" FontAttributes="Bold" />
+                <Entry Text="{Binding Search}" Placeholder="Buscar bebidas" ReturnType="Search" SemanticProperties.Description="Buscar bebidas"
+                       ReturnCommand="{Binding SearchCommand}" AutomationId="ProductSearch" />
+                <Picker IsVisible="{Binding IsCompany}" Title="Categoria" ItemsSource="{Binding Categories}" SelectedItem="{Binding SelectedCategory}"
+                        ItemDisplayBinding="{Binding Name}" AutomationId="CategoryFilter" />
+                <ScrollView Orientation="Horizontal" IsVisible="{Binding IsClient}">
+                    <HorizontalStackLayout BindableLayout.ItemsSource="{Binding Categories}" Spacing="8">
+                        <BindableLayout.ItemTemplate><DataTemplate>
+                            <Button Text="{Binding Name}" Style="{StaticResource SecondaryButton}"
+                                    Command="{Binding Source={x:Reference RootPage}, Path=BindingContext.SelectCategoryCommand}" CommandParameter="{Binding .}" />
+                        </DataTemplate></BindableLayout.ItemTemplate>
+                    </HorizontalStackLayout>
+                </ScrollView>
+                <Label Text="{Binding SelectedCategory.Name}" IsVisible="{Binding IsClient}" FontAttributes="Bold" />
+                <Picker Title="Situação" ItemsSource="{Binding ActiveFilters}" SelectedItem="{Binding ActiveFilter}"
+                        IsVisible="{Binding IsCompany}" AutomationId="ActiveFilter" />
+                <FlexLayout Wrap="Wrap" Direction="Row">
+                    <Button Text="Buscar" Command="{Binding SearchCommand}" Margin="0,0,8,8" />
+                    <Button Text="Atualizar" Command="{Binding RefreshCommand}" AutomationId="RefreshProducts" Margin="0,0,8,8" />
+                    <Button Text="Novo produto" Command="{Binding NewCommand}" IsVisible="{Binding IsCompany}"
+                            AutomationId="NewProduct" />
+                </FlexLayout>
+                <Label Text="Nenhum produto para mostrar. Altere a busca ou toque em Atualizar." IsVisible="{Binding IsCatalogEmpty}" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Products}" Spacing="10">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <Border Stroke="{AppThemeBinding Light=#D8D1C5, Dark=#504A40}"
+                                    BackgroundColor="{AppThemeBinding Light=White, Dark=#29251F}" Padding="12">
+                                <Grid ColumnDefinitions="72,*" ColumnSpacing="12">
+                                    <Grid WidthRequest="72" HeightRequest="72"
+                                          BackgroundColor="{AppThemeBinding Light=#EDE6D9, Dark=#3B352C}">
+                                        <Label Text="Sem imagem" FontSize="11" HorizontalTextAlignment="Center"
+                                               VerticalTextAlignment="Center" />
+                                        <Image Source="{Binding ImageUrl}" Aspect="AspectFill" IsVisible="{Binding HasImage}" />
+                                    </Grid>
+                                    <VerticalStackLayout Grid.Column="1" Spacing="3">
+                                        <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="18" />
+                                        <Label Text="{Binding Subtitle}" FontSize="13" />
+                                        <Label Text="{Binding Price}" FontAttributes="Bold" />
+                                        <Label Text="{Binding Availability}" />
+                                        <Button Text="Detalhes" Command="{Binding OpenCommand}" HorizontalOptions="Start" />
+                                    </VerticalStackLayout>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+                <Label Text="{Binding PageText}" AutomationId="ProductPage" />
+                <HorizontalStackLayout Spacing="8">
+                    <Button Text="Anterior" Command="{Binding PreviousCommand}" IsEnabled="{Binding CanPrevious}" />
+                    <Button Text="Próxima" Command="{Binding NextCommand}" IsEnabled="{Binding CanNext}" />
+                </HorizontalStackLayout>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout IsVisible="{Binding IsDetail}" Spacing="12">
+                <Button Text="Voltar" Command="{Binding BackCommand}" HorizontalOptions="Start" />
+                <Label Text="{Binding DetailName}" FontSize="24" FontAttributes="Bold" AutomationId="ProductDetailName" />
+                <Grid WidthRequest="220" HeightRequest="180"
+                      BackgroundColor="{AppThemeBinding Light=#EDE6D9, Dark=#3B352C}" HorizontalOptions="Start">
+                    <Label Text="Imagem indisponível" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                    <Image Source="{Binding DetailImage}" Aspect="AspectFit" IsVisible="{Binding HasDetailImage}" />
+                </Grid>
+                <Label Text="{Binding DetailSku}" IsVisible="{Binding IsCompany}" />
+                <Label Text="{Binding DetailDescription}" />
+                <Label Text="{Binding DetailUnit}" />
+                <Label Text="{Binding DetailPrice}" FontSize="22" FontAttributes="Bold" />
+                <Label Text="{Binding DetailAvailability}" />
+                <Button Text="Editar produto" Command="{Binding EditCommand}" IsVisible="{Binding IsCompany}" />
+                <Label Text="Quantidade (1 a 999)" IsVisible="{Binding IsClient}" />
+                <Entry Text="{Binding DetailQuantity}" Keyboard="Numeric" MaxLength="3" SemanticProperties.Description="Quantidade do produto"
+                       IsVisible="{Binding IsClient}" AutomationId="DetailQuantity" />
+                <Button Text="{Binding AddToCartLabel}" Command="{Binding AddToCartCommand}"
+                        IsVisible="{Binding IsClient}" IsEnabled="{Binding CanAddToCart}"
+                        AutomationId="AddToCart" />
+                <Label Text="Produto indisponível para compra." IsVisible="{Binding IsUnavailableForCart}"
+                       TextColor="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout IsVisible="{Binding IsCart}" Spacing="12">
+                <Label Text="Carrinho" FontSize="24" FontAttributes="Bold" />
+                <Label Text="Os preços são estimados com base na última consulta. A loja confirmará os valores ao finalizar o pedido." />
+                <Label Text="{Binding Cart.Error}" TextColor="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" AutomationId="CartError" />
+                <Label Text="Carrinho vazio. Volte ao catálogo para escolher produtos."
+                       IsVisible="{Binding Cart.IsEmpty}" AutomationId="CartEmpty" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Cart.Items}" Spacing="10">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <Border Stroke="{AppThemeBinding Light=#D8D1C5, Dark=#504A40}"
+                                    BackgroundColor="{AppThemeBinding Light=White, Dark=#29251F}" Padding="12">
+                                <VerticalStackLayout Spacing="6">
+                                    <Label Text="{Binding Name}" FontAttributes="Bold" FontSize="18" />
+                                    <Label Text="{Binding UnitLabel}" />
+                                    <Label Text="{Binding UnitPrice}" />
+                                    <FlexLayout Wrap="Wrap" Direction="Row">
+                                        <Button Text="−" Command="{Binding DecreaseCommand}" AutomationId="DecreaseCartQuantity" />
+                                        <Entry Text="{Binding Quantity}" Keyboard="Numeric" MaxLength="3" SemanticProperties.Description="Quantidade no carrinho"
+                                               WidthRequest="75" AutomationId="CartQuantity" />
+                                        <Button Text="+" Command="{Binding IncreaseCommand}" AutomationId="IncreaseCartQuantity" />
+                                        <Button Text="Aplicar" Command="{Binding SaveQuantityCommand}" AutomationId="SaveCartQuantity" />
+                                    </FlexLayout>
+                                    <Label Text="{Binding Subtotal}" FontAttributes="Bold" />
+                                    <Button Text="Remover" Command="{Binding RemoveCommand}" HorizontalOptions="Start"
+                                            AutomationId="RemoveCartItem" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+                <Label Text="{Binding Cart.CountText}" />
+                <Label Text="{Binding Cart.EstimatedTotal, StringFormat='Total estimado: {0}'}"
+                       FontSize="22" FontAttributes="Bold" AutomationId="CartTotal" />
+                <Button Text="Voltar ao catálogo" Command="{Binding BackFromCartCommand}" AutomationId="BackFromCart" />
+                <Button Text="Continuar pedido" Command="{Binding OpenCheckoutCommand}" IsEnabled="{Binding Cart.HasItems}"
+                        AutomationId="OpenCheckout" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout IsVisible="{Binding IsCheckout}" Spacing="8">
+                <Label Text="Finalização" FontSize="24" FontAttributes="Bold" />
+                <Label Text="{Binding Checkout.StepTitle}" FontAttributes="Bold" />
+                <Label Text="{Binding Checkout.ReferenceNotice}" />
+                <VerticalStackLayout IsVisible="{Binding Checkout.IsReceivingStep}" Spacing="8" IsEnabled="{Binding Checkout.CanEdit}">
+                <HorizontalStackLayout Spacing="8">
+                    <Button Text="Entrega" Command="{Binding DeliveryCommand}" AutomationId="ChooseDelivery" />
+                    <Button Text="Retirada" Command="{Binding PickupCommand}" AutomationId="ChoosePickup" />
+                </HorizontalStackLayout>
+                <Label Text="Entrega selecionada" IsVisible="{Binding Checkout.IsDelivery}" />
+                <Label Text="Retirada selecionada" IsVisible="{Binding Checkout.IsPickup}" />
+                <Label Text="Data desejada" />
+                <DatePicker Date="{Binding Checkout.RequestedDate}" Format="dd/MM/yyyy" MinimumDate="{Binding Checkout.MinDate}"
+                            MaximumDate="{Binding Checkout.MaxDate}" AutomationId="RequestedDate" />
+                <VerticalStackLayout IsVisible="{Binding Checkout.CanEnterAddress}" Spacing="6">
+                    <Label Text="Endereço desta entrega" FontAttributes="Bold" />
+                    <Label Text="CEP" /><Entry Text="{Binding Checkout.PostalCode}" Keyboard="Numeric" AutomationId="CheckoutPostalCode" SemanticProperties.Description="CEP da entrega" />
+                    <Label Text="Rua" /><Entry Text="{Binding Checkout.Street}" AutomationId="CheckoutStreet" SemanticProperties.Description="Rua da entrega" />
+                    <Label Text="Número" /><Entry Text="{Binding Checkout.Number}" AutomationId="CheckoutNumber" SemanticProperties.Description="Número do endereço da entrega" />
+                    <Label Text="Complemento" /><Entry Text="{Binding Checkout.Complement}" SemanticProperties.Description="Complemento do endereço da entrega" />
+                    <Label Text="Bairro" /><Entry Text="{Binding Checkout.District}" AutomationId="CheckoutDistrict" SemanticProperties.Description="Bairro da entrega" />
+                    <Label Text="Cidade" /><Entry Text="{Binding Checkout.City}" AutomationId="CheckoutCity" SemanticProperties.Description="Cidade da entrega" />
+                    <Label Text="UF" /><Entry Text="{Binding Checkout.State}" MaxLength="2" AutomationId="CheckoutState" SemanticProperties.Description="UF da entrega" />
+                    <Label Text="Referência" /><Entry Text="{Binding Checkout.Reference}" SemanticProperties.Description="Referência do endereço da entrega" />
+                </VerticalStackLayout>
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Checkout.IsPaymentStep}" Spacing="8" IsEnabled="{Binding Checkout.CanEdit}">
+                <Label Text="O pagamento será realizado na entrega ou retirada." />
+                <Label Text="Forma de pagamento" />
+                <Picker ItemsSource="{Binding Checkout.Payments}" SelectedItem="{Binding Checkout.SelectedPayment}"
+                        ItemDisplayBinding="{Binding Name}" AutomationId="CheckoutPayment" />
+                <VerticalStackLayout IsVisible="{Binding Checkout.IsCash}">
+                    <Label Text="Valor para troco (opcional; vazio significa valor exato)" />
+                    <Entry Text="{Binding Checkout.CashTendered}" Keyboard="Numeric" AutomationId="CashTendered" SemanticProperties.Description="Valor para troco" />
+                </VerticalStackLayout>
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Checkout.IsReviewStep}" Spacing="12" IsEnabled="{Binding Checkout.CanEdit}">
+                    <Border Padding="16"><VerticalStackLayout Spacing="8">
+                        <Label Text="Produtos e total" FontAttributes="Bold" />
+                        <Label Text="{Binding Checkout.Summary}" AutomationId="CheckoutSummary" />
+                    </VerticalStackLayout></Border>
+                    <Border Padding="16"><VerticalStackLayout Spacing="8">
+                        <Label Text="Recebimento" FontAttributes="Bold" />
+                        <Label Text="{Binding Checkout.ReceivingSummary}" />
+                        <Button Text="Editar recebimento" Command="{Binding Checkout.EditReceivingCommand}" Style="{StaticResource SecondaryButton}" />
+                    </VerticalStackLayout></Border>
+                    <Border Padding="16"><VerticalStackLayout Spacing="8">
+                        <Label Text="Pagamento" FontAttributes="Bold" />
+                        <Label Text="{Binding Checkout.PaymentSummary}" />
+                        <Button Text="Editar pagamento" Command="{Binding Checkout.EditPaymentCommand}" Style="{StaticResource SecondaryButton}" />
+                    </VerticalStackLayout></Border>
+                <Label Text="Observações (opcional)" />
+                <Editor Text="{Binding Checkout.Notes}" MaxLength="500" AutomationId="CheckoutNotes" SemanticProperties.Description="Observações do pedido" />
+                <Label Text="Total estimado. Preços e disponibilidade serão conferidos no envio." />
+                </VerticalStackLayout>
+                <Label Text="{Binding Checkout.Error}" TextColor="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" AutomationId="CheckoutError" />
+                <Label Text="{Binding Checkout.Status}" AutomationId="CheckoutStatus" />
+                <ActivityIndicator IsRunning="{Binding Checkout.IsBusy}" IsVisible="{Binding Checkout.IsBusy}" />
+                <Button Text="{Binding Checkout.NextLabel}" Command="{Binding Checkout.NextStepCommand}" IsVisible="{Binding Checkout.IsBeforeReview}" IsEnabled="{Binding Checkout.CanAdvance}" AutomationId="NextCheckoutStep" />
+                <Button Text="Confirmar pedido" Clicked="OnSaveCheckout" IsVisible="{Binding Checkout.IsReviewStep}" IsEnabled="{Binding Checkout.CanSave}"
+                        AutomationId="SaveCheckout" />
+                <Button Text="Voltar" Clicked="OnBackCheckout" IsEnabled="{Binding Checkout.CanEdit}" Style="{StaticResource SecondaryButton}" />
+                <Button Text="Voltar ao carrinho" Command="{Binding BackFromCheckoutCommand}" IsEnabled="{Binding Checkout.CanEdit}" Style="{StaticResource SecondaryButton}" />
+            </VerticalStackLayout>
+            <VerticalStackLayout IsVisible="{Binding IsLocalOrder}" Spacing="8">
+                <Label Text="Pedido salvo — aguardando envio" FontSize="24" FontAttributes="Bold" />
+                <Label Text="Acompanhe o envio e a confirmação em Meus pedidos." />
+                <Label Text="{Binding Checkout.Summary}" />
+                <Button Text="Voltar ao catálogo" Command="{Binding BackFromCartCommand}" />
+            </VerticalStackLayout>
+            <VerticalStackLayout IsVisible="{Binding IsOrders}" Spacing="10">
+                <Label Text="Meus pedidos" FontSize="24" FontAttributes="Bold" />
+                <Button Text="Atualizar histórico" Command="{Binding Orders.RefreshCommand}"
+                        AutomationId="RefreshOrders" />
+                <ActivityIndicator IsRunning="{Binding Orders.IsBusy}" IsVisible="{Binding Orders.IsBusy}" />
+                <Label Text="{Binding Orders.Message}" AutomationId="OrdersMessage" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Orders.Items}" Spacing="8" IsVisible="{Binding Orders.ShowList}">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <Border Stroke="{AppThemeBinding Light=#D8D1C5, Dark=#504A40}"
+                                    BackgroundColor="{AppThemeBinding Light=White, Dark=#29251F}" Padding="12">
+                                <VerticalStackLayout Spacing="5">
+                                    <Label Text="{Binding Title}" FontAttributes="Bold" />
+                                    <Label Text="{Binding Summary}" />
+                                    <Label Text="{Binding State}" />
+                                    <FlexLayout Wrap="Wrap" Direction="Row">
+                                        <Button Text="Detalhes" Command="{Binding OpenCommand}" Margin="0,0,8,4" />
+                                        <Button Text="Enviar / reenviar" Command="{Binding SendCommand}"
+                                                IsVisible="{Binding CanSend}" Margin="0,0,8,4" />
+                                        <Button Text="Revisar pedido" Command="{Binding ReviewCommand}"
+                                                IsVisible="{Binding CanReview}" Margin="0,0,8,4" />
+                                    </FlexLayout>
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+                <VerticalStackLayout IsVisible="{Binding Orders.HasDetail}" Spacing="10">
+                    <Button Text="Voltar aos pedidos" Command="{Binding Orders.CloseDetailCommand}" Style="{StaticResource SecondaryButton}" />
+                    <Label Text="Acompanhamento do pedido" FontSize="22" FontAttributes="Bold" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Orders.Progress}">
+                        <BindableLayout.ItemTemplate><DataTemplate>
+                            <Label Text="{Binding .}" Padding="0,6" FontAttributes="Bold" />
+                        </DataTemplate></BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                    <Label Text="{Binding Orders.Detail}" AutomationId="OrderDetail" />
+                    <Button Text="Verificar envio / reenviar" Command="{Binding Orders.SendSelectedCommand}" IsVisible="{Binding Orders.CanSendSelected}" />
+                    <Button Text="Revisar pedido" Command="{Binding Orders.ReviewSelectedCommand}" IsVisible="{Binding Orders.CanReviewSelected}" />
+                    <Button Text="Pedir novamente" Command="{Binding Orders.ReorderSelectedCommand}" IsVisible="{Binding Orders.CanReorderSelected}" Style="{StaticResource SecondaryButton}" />
+                </VerticalStackLayout>
+                <Button Text="Ver catálogo" Command="{Binding BackFromCartCommand}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout IsVisible="{Binding IsReorder}" Spacing="10">
+                <Label Text="Revisar recompra" FontSize="24" FontAttributes="Bold" />
+                <Label Text="{Binding ReorderSource}" />
+                <ActivityIndicator IsRunning="{Binding IsReorderBusy}" IsVisible="{Binding IsReorderBusy}" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding ReorderLines}" Spacing="8">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate>
+                            <Border Stroke="{AppThemeBinding Light=#D8D1C5, Dark=#504A40}"
+                                    BackgroundColor="{AppThemeBinding Light=White, Dark=#29251F}" Padding="12">
+                                <VerticalStackLayout Spacing="4">
+                                    <Label Text="{Binding Name}" FontAttributes="Bold" />
+                                    <Label Text="{Binding Price}" />
+                                    <Label Text="{Binding Availability}" />
+                                    <Button Text="Remover deste novo carrinho" Command="{Binding RemoveCommand}" />
+                                </VerticalStackLayout>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+                <Label Text="{Binding ReorderTotal, StringFormat='Novo total estimado: {0}'}" />
+                <Label Text="{Binding ReorderError}" TextColor="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" AutomationId="ReorderError" />
+                <Button Text="Criar novo carrinho" Clicked="OnConfirmReorder"
+                        IsEnabled="{Binding CanConfirmReorder}" AutomationId="ConfirmReorder" />
+                <Button Text="Cancelar recompra" Command="{Binding BackFromReorderCommand}" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout IsVisible="{Binding IsCompanyOrders}" Spacing="10">
+                <VerticalStackLayout IsVisible="{Binding CompanyOrders.ShowList}" Spacing="10">
+                <Label Text="Pedidos recebidos" FontSize="24" FontAttributes="Bold" />
+                <Picker Title="Estado" ItemsSource="{Binding CompanyOrders.Filters}"
+                        SelectedItem="{Binding CompanyOrders.SelectedFilter}" AutomationId="CompanyOrderStatusFilter" />
+                <HorizontalStackLayout Spacing="8">
+                    <Entry Placeholder="De dd/MM/aaaa" Text="{Binding CompanyOrders.FromDate}" WidthRequest="140" SemanticProperties.Description="Data inicial dos pedidos" />
+                    <Entry Placeholder="Até dd/MM/aaaa" Text="{Binding CompanyOrders.ToDate}" WidthRequest="140" SemanticProperties.Description="Data final dos pedidos" />
+                </HorizontalStackLayout>
+                <Button Text="Filtrar e atualizar" Command="{Binding CompanyOrders.RefreshCommand}" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding CompanyOrders.Items}" Spacing="8">
+                    <BindableLayout.ItemTemplate><DataTemplate>
+                        <Border Padding="10" Stroke="{AppThemeBinding Light=#D8D1C5, Dark=#504A40}"><VerticalStackLayout>
+                            <Label Text="{Binding Title}" FontAttributes="Bold" />
+                            <Label Text="{Binding Subtitle}" />
+                            <Button Text="Abrir atendimento" Command="{Binding OpenCommand}" />
+                        </VerticalStackLayout></Border>
+                    </DataTemplate></BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+                <Label Text="{Binding CompanyOrders.PageLabel}" />
+                <HorizontalStackLayout Spacing="8">
+                    <Button Text="Anterior" Command="{Binding CompanyOrders.PreviousCommand}" IsEnabled="{Binding CompanyOrders.CanPrevious}" />
+                    <Button Text="Próxima" Command="{Binding CompanyOrders.NextCommand}" IsEnabled="{Binding CompanyOrders.CanNext}" />
+                </HorizontalStackLayout>
+                </VerticalStackLayout>
+                <ActivityIndicator IsRunning="{Binding CompanyOrders.IsBusy}" IsVisible="{Binding CompanyOrders.IsBusy}" />
+                <Label Text="{Binding CompanyOrders.Message}" AutomationId="CompanyOrderMessage" />
+                <VerticalStackLayout IsVisible="{Binding CompanyOrders.HasDetail}" Spacing="8">
+                    <Button Text="Fechar detalhe" Clicked="OnCloseCompanyOrder" HorizontalOptions="Start" />
+                    <Label Text="{Binding CompanyOrders.Detail}" AutomationId="CompanyOrderDetail" />
+                    <Button Text="Verificar resultado" Command="{Binding CompanyOrders.RecoverCommand}"
+                            IsVisible="{Binding CompanyOrders.HasPending}" AutomationId="RecoverCompanyOrder" />
+                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding CompanyOrders.AvailableActions}">
+                        <BindableLayout.ItemTemplate><DataTemplate>
+                            <Button Text="{Binding Label}" Command="{Binding Command}" Margin="0,8,0,0">
+                                <Button.Triggers><DataTrigger TargetType="Button" Binding="{Binding IsDestructive}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="Transparent" />
+                                    <Setter Property="TextColor" Value="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" />
+                                    <Setter Property="BorderColor" Value="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" />
+                                    <Setter Property="BorderWidth" Value="1" />
+                                </DataTrigger></Button.Triggers>
+                            </Button>
+                        </DataTemplate></BindableLayout.ItemTemplate>
+                    </VerticalStackLayout>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout IsVisible="{Binding IsEditor}" Spacing="8">
+                <Button Text="Voltar" Clicked="OnBackFromEditor" HorizontalOptions="Start" />
+                <Label Text="{Binding EditorTitle}" FontSize="24" FontAttributes="Bold" />
+                <Label Text="SKU" /><Entry Text="{Binding Sku}" MaxLength="40" AutomationId="ProductSku" SemanticProperties.Description="SKU do produto" />
+                <Label Text="{Binding SkuError}" TextColor="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" />
+                <Label Text="Categoria" />
+                <Picker Title="Selecione" ItemsSource="{Binding Categories}" SelectedItem="{Binding EditCategory}"
+                        ItemDisplayBinding="{Binding Name}" AutomationId="ProductCategory" />
+                <Label Text="{Binding CategoryError}" TextColor="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" />
+                <Label Text="Nome" /><Entry Text="{Binding Name}" MaxLength="120" AutomationId="ProductName" SemanticProperties.Description="Nome do produto" />
+                <Label Text="{Binding NameError}" TextColor="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" />
+                <Label Text="Descrição (opcional)" /><Editor Text="{Binding Description}" MaxLength="2000" AutoSize="TextChanges" SemanticProperties.Description="Descrição do produto" />
+                <Label Text="{Binding DescriptionError}" TextColor="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" />
+                <Label Text="Embalagem/unidade" /><Entry Text="{Binding UnitLabel}" MaxLength="40" AutomationId="ProductUnit" SemanticProperties.Description="Embalagem ou unidade do produto" />
+                <Label Text="{Binding UnitError}" TextColor="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" />
+                <Label Text="Preço em reais" /><Entry Text="{Binding Price}" Keyboard="Numeric" AutomationId="ProductPrice" SemanticProperties.Description="Preço do produto em reais" />
+                <Label Text="{Binding PriceError}" TextColor="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" />
+                <Label Text="URL da imagem (opcional)" /><Entry Text="{Binding ImageUrl}" Keyboard="Url" MaxLength="1024" SemanticProperties.Description="URL da imagem do produto" />
+                <Label Text="{Binding ImageUrlError}" TextColor="{AppThemeBinding Light=#9C2525, Dark=#FFA6A6}" />
+                <HorizontalStackLayout Spacing="8"><Label Text="Disponível" VerticalTextAlignment="Center" />
+                    <Switch IsToggled="{Binding IsAvailable}" /></HorizontalStackLayout>
+                <HorizontalStackLayout Spacing="8"><Label Text="Ativo" VerticalTextAlignment="Center" />
+                    <Switch IsToggled="{Binding IsActive}" AutomationId="ProductActive" /></HorizontalStackLayout>
+                <Button Text="Salvar produto" Command="{Binding SaveCommand}" AutomationId="SaveProduct" />
+                <Button Text="Carregar versão atual para revisão" Command="{Binding ReviewCommand}"
+                        IsVisible="{Binding NeedsReview}" AutomationId="ReviewProductVersion" />
+            </VerticalStackLayout>
+        </VerticalStackLayout>
+    </ScrollView>
+        <Border x:Name="BottomNavigation" Grid.Row="2" Grid.ColumnSpan="2" Padding="4,8" StrokeThickness="0" BackgroundColor="{AppThemeBinding Light=#F0E9DF, Dark=#211B16}">
+            <VerticalStackLayout>
+                <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="2" IsVisible="{Binding ShowClientNavigation}">
+                    <Button Text="Catálogo" Command="{Binding CatalogCommand}" Style="{StaticResource CatalogNavButton}" AutomationId="CatalogTab" />
+                    <Button Grid.Column="1" Text="{Binding CartTabTitle}" Command="{Binding OpenCartCommand}" Style="{StaticResource CartNavButton}" AutomationId="OpenCart" />
+                    <Button Grid.Column="2" Text="Meus pedidos" Command="{Binding OpenOrdersCommand}" Style="{StaticResource OrdersNavButton}" AutomationId="OpenOrders" />
+                    <Button Grid.Column="3" Text="Meu cadastro" Command="{Binding OpenProfileCommand}" Style="{StaticResource ProfileNavButton}" AutomationId="OpenProfile" />
+                </Grid>
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="4" IsVisible="{Binding ShowCompanyNavigation}">
+                    <Button Text="Pedidos recebidos" Command="{Binding OpenCompanyOrdersCommand}" Style="{StaticResource CompanyOrdersNavButton}" AutomationId="OpenCompanyOrders" />
+                    <Button Grid.Column="1" Text="Produtos" Command="{Binding BackCommand}" Style="{StaticResource ProductsNavButton}" />
+                    <Button Grid.Column="2" Text="Voltar ao cliente" Command="{Binding ClientCommand}" Style="{StaticResource NavButton}" />
+                </Grid>
+            </VerticalStackLayout>
+        </Border>
+    </Grid>
+</ContentPage>

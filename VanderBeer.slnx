@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/VanderBeer.Api/VanderBeer.Api.csproj" />
+    <Project Path="src/VanderBeer.App/VanderBeer.App.csproj" />
+    <Project Path="src/VanderBeer.Application/VanderBeer.Application.csproj" />
+    <Project Path="src/VanderBeer.Contracts/VanderBeer.Contracts.csproj" />
+    <Project Path="src/VanderBeer.Domain/VanderBeer.Domain.csproj" />
+    <Project Path="src/VanderBeer.Infrastructure/VanderBeer.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/VanderBeer.ApiTests/VanderBeer.ApiTests.csproj" />
+    <Project Path="tests/VanderBeer.MySqlTests/VanderBeer.MySqlTests.csproj" />
+    <Project Path="tests/VanderBeer.UnitTests/VanderBeer.UnitTests.csproj" />
+  </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/VanderBeer.DbMigrator/VanderBeer.DbMigrator.csproj" />
+  </Folder>
+</Solution>

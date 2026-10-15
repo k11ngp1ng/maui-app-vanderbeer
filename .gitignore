@@ -1,0 +1,19 @@
+**/bin/
+**/obj/
+.vs/
+.vscode/
+*.user
+*.suo
+TestResults/
+artifacts/
+appsettings.Local.json
+*.db
+*.db-shm
+*.db-wal
+database/.scratch-mysql/
+
+# Documentacao de trabalho mantida apenas localmente
+*.md
+!docs/backlog.md
+.codex/
+.agents/

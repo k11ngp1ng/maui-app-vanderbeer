@@ -1,0 +1,979 @@
+{
+  "description": "Dados sintéticos. Relógio: 2026-10-08T00:35:00Z (2026-10-07 em São Paulo). valid testa o esquema, não as regras de negócio.",
+  "cases": [
+    {
+      "name": "GetStoreSettings-response",
+      "schema": "StoreSettings",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "storeName": "VanderBeer",
+        "timeZone": "America/Sao_Paulo",
+        "currency": "BRL",
+        "today": "2026-10-07",
+        "minRequestedDate": "2026-10-07",
+        "maxRequestedDate": "2026-11-06",
+        "deliveryFee": 0,
+        "maxDistinctItems": 50,
+        "maxQuantityPerItem": 999,
+        "maxOrderTotal": 999999.99
+      }
+    },
+    {
+      "name": "GetCategories-response",
+      "schema": null,
+      "inlineSchema": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 100,
+        "items": {
+          "$ref": "#/components/schemas/Category"
+        }
+      },
+      "valid": true,
+      "value": [
+        {
+          "id": "00000000-0000-4000-8000-000000000002",
+          "name": "Cervejas"
+        }
+      ]
+    },
+    {
+      "name": "GetPaymentMethods-response",
+      "schema": null,
+      "inlineSchema": {
+        "type": "array",
+        "minItems": 0,
+        "maxItems": 100,
+        "items": {
+          "$ref": "#/components/schemas/PaymentMethod"
+        }
+      },
+      "valid": true,
+      "value": [
+        {
+          "id": "00000000-0000-4000-8000-000000000004",
+          "code": "Cash",
+          "name": "Dinheiro"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000006",
+          "code": "CardOnFulfillment",
+          "name": "Cartão no atendimento"
+        },
+        {
+          "id": "00000000-0000-4000-8000-000000000007",
+          "code": "PixOnFulfillment",
+          "name": "Pix no atendimento"
+        }
+      ]
+    },
+    {
+      "name": "GetProducts-response",
+      "schema": "ProductPage",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "items": [
+          {
+            "id": "00000000-0000-4000-8000-000000000003",
+            "categoryId": "00000000-0000-4000-8000-000000000002",
+            "sku": "VB-PILSEN-350",
+            "name": "VanderBeer Pilsen 350 ml",
+            "description": "Produto de demonstração.",
+            "unitLabel": "Lata 350 ml",
+            "price": 10,
+            "imageUrl": null,
+            "isAvailable": true,
+            "isActive": true,
+            "version": 1,
+            "updatedAtUtc": "2026-10-08T00:20:00Z"
+          }
+        ],
+        "page": 1,
+        "pageSize": 20,
+        "total": 1
+      }
+    },
+    {
+      "name": "GetProduct-response",
+      "schema": "Product",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "id": "00000000-0000-4000-8000-000000000003",
+        "categoryId": "00000000-0000-4000-8000-000000000002",
+        "sku": "VB-PILSEN-350",
+        "name": "VanderBeer Pilsen 350 ml",
+        "description": "Produto de demonstração.",
+        "unitLabel": "Lata 350 ml",
+        "price": 10,
+        "imageUrl": null,
+        "isAvailable": true,
+        "isActive": true,
+        "version": 1,
+        "updatedAtUtc": "2026-10-08T00:20:00Z"
+      }
+    },
+    {
+      "name": "CreateCustomer-request",
+      "schema": "CreateCustomerRequest",
+      "valid": true,
+      "value": {
+        "clientRequestId": "00000000-0000-4000-8000-000000000101",
+        "fullName": "Cliente de demonstração",
+        "cpf": "12345678909",
+        "phone": "11999999999",
+        "email": null,
+        "address": {
+          "postalCode": "01001000",
+          "street": "Rua Exemplo",
+          "number": "123",
+          "complement": null,
+          "district": "Centro",
+          "city": "São Paulo",
+          "state": "SP",
+          "reference": null
+        },
+        "customerType": "Individual",
+        "companyName": null,
+        "cnpj": null
+      }
+    },
+    {
+      "name": "CreateCustomer-response",
+      "schema": "Customer",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "fullName": "Cliente de demonstração",
+        "cpf": "12345678909",
+        "phone": "11999999999",
+        "email": null,
+        "address": {
+          "postalCode": "01001000",
+          "street": "Rua Exemplo",
+          "number": "123",
+          "complement": null,
+          "district": "Centro",
+          "city": "São Paulo",
+          "state": "SP",
+          "reference": null
+        },
+        "version": 1,
+        "createdAtUtc": "2026-10-08T00:30:00Z",
+        "updatedAtUtc": "2026-10-08T00:30:00Z",
+        "customerType": "Individual",
+        "companyName": null,
+        "cnpj": null
+      }
+    },
+    {
+      "name": "GetCustomer-response",
+      "schema": "Customer",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "fullName": "Cliente de demonstração",
+        "cpf": "12345678909",
+        "phone": "11999999999",
+        "email": null,
+        "address": {
+          "postalCode": "01001000",
+          "street": "Rua Exemplo",
+          "number": "123",
+          "complement": null,
+          "district": "Centro",
+          "city": "São Paulo",
+          "state": "SP",
+          "reference": null
+        },
+        "version": 1,
+        "createdAtUtc": "2026-10-08T00:30:00Z",
+        "updatedAtUtc": "2026-10-08T00:30:00Z",
+        "customerType": "Individual",
+        "companyName": null,
+        "cnpj": null
+      }
+    },
+    {
+      "name": "UpdateCustomer-request",
+      "schema": "UpdateCustomerRequest",
+      "valid": true,
+      "value": {
+        "clientRequestId": "00000000-0000-4000-8000-000000000104",
+        "fullName": "Cliente de demonstração",
+        "cpf": "12345678909",
+        "phone": "11999999999",
+        "email": null,
+        "address": {
+          "postalCode": "01001000",
+          "street": "Rua Exemplo",
+          "number": "123",
+          "complement": null,
+          "district": "Centro",
+          "city": "São Paulo",
+          "state": "SP",
+          "reference": null
+        },
+        "expectedVersion": 1,
+        "customerType": "Individual",
+        "companyName": null,
+        "cnpj": null
+      }
+    },
+    {
+      "name": "UpdateCustomer-response",
+      "schema": "Customer",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "id": "00000000-0000-4000-8000-000000000001",
+        "fullName": "Cliente de demonstração",
+        "cpf": "12345678909",
+        "phone": "11999999999",
+        "email": null,
+        "address": {
+          "postalCode": "01001000",
+          "street": "Rua Exemplo",
+          "number": "123",
+          "complement": null,
+          "district": "Centro",
+          "city": "São Paulo",
+          "state": "SP",
+          "reference": null
+        },
+        "version": 2,
+        "createdAtUtc": "2026-10-08T00:30:00Z",
+        "updatedAtUtc": "2026-10-08T00:40:00Z",
+        "customerType": "Individual",
+        "companyName": null,
+        "cnpj": null
+      }
+    },
+    {
+      "name": "CreateOrder-request",
+      "schema": "CreateOrderRequest",
+      "valid": true,
+      "value": {
+        "clientRequestId": "00000000-0000-4000-8000-000000000103",
+        "customerId": "00000000-0000-4000-8000-000000000001",
+        "expectedCustomerVersion": 1,
+        "fulfillmentType": "Delivery",
+        "requestedDate": "2026-10-08",
+        "paymentMethodId": "00000000-0000-4000-8000-000000000004",
+        "cashTendered": 50,
+        "deliveryAddress": {
+          "postalCode": "01001000",
+          "street": "Rua Exemplo",
+          "number": "123",
+          "complement": null,
+          "district": "Centro",
+          "city": "São Paulo",
+          "state": "SP",
+          "reference": null
+        },
+        "notes": null,
+        "items": [
+          {
+            "productId": "00000000-0000-4000-8000-000000000003",
+            "quantity": 2,
+            "expectedUnitPrice": 10
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreateOrder-response",
+      "schema": "Order",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "id": "00000000-0000-4000-8000-000000000005",
+        "protocol": "VB-00000001",
+        "createdAtUtc": "2026-10-08T00:35:00Z",
+        "requestedDate": "2026-10-08",
+        "fulfillmentType": "Delivery",
+        "status": "Received",
+        "total": 20,
+        "version": 1,
+        "clientRequestId": "00000000-0000-4000-8000-000000000103",
+        "customerId": "00000000-0000-4000-8000-000000000001",
+        "customer": {
+          "name": "Cliente de demonstração",
+          "phone": "11999999999"
+        },
+        "paymentMethod": {
+          "id": "00000000-0000-4000-8000-000000000004",
+          "code": "Cash",
+          "name": "Dinheiro"
+        },
+        "deliveryAddress": {
+          "postalCode": "01001000",
+          "street": "Rua Exemplo",
+          "number": "123",
+          "complement": null,
+          "district": "Centro",
+          "city": "São Paulo",
+          "state": "SP",
+          "reference": null
+        },
+        "notes": null,
+        "cashTendered": 50,
+        "changeDue": 30,
+        "deliveryFee": 0,
+        "updatedAtUtc": "2026-10-08T00:35:00Z",
+        "items": [
+          {
+            "productId": "00000000-0000-4000-8000-000000000003",
+            "productName": "VanderBeer Pilsen 350 ml",
+            "unitLabel": "Lata 350 ml",
+            "quantity": 2,
+            "unitPrice": 10,
+            "subtotal": 20
+          }
+        ],
+        "statusHistory": [
+          {
+            "sequence": 1,
+            "fromStatus": null,
+            "toStatus": "Received",
+            "occurredAtUtc": "2026-10-08T00:35:00Z",
+            "reason": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "GetCustomerOrders-response",
+      "schema": "OrderPage",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "items": [
+          {
+            "id": "00000000-0000-4000-8000-000000000005",
+            "protocol": "VB-00000001",
+            "createdAtUtc": "2026-10-08T00:35:00Z",
+            "requestedDate": "2026-10-08",
+            "fulfillmentType": "Delivery",
+            "status": "Received",
+            "total": 20,
+            "version": 1
+          }
+        ],
+        "page": 1,
+        "pageSize": 20,
+        "total": 1
+      }
+    },
+    {
+      "name": "GetOrder-response",
+      "schema": "Order",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "id": "00000000-0000-4000-8000-000000000005",
+        "protocol": "VB-00000001",
+        "createdAtUtc": "2026-10-08T00:35:00Z",
+        "requestedDate": "2026-10-08",
+        "fulfillmentType": "Delivery",
+        "status": "Received",
+        "total": 20,
+        "version": 1,
+        "clientRequestId": "00000000-0000-4000-8000-000000000103",
+        "customerId": "00000000-0000-4000-8000-000000000001",
+        "customer": {
+          "name": "Cliente de demonstração",
+          "phone": "11999999999"
+        },
+        "paymentMethod": {
+          "id": "00000000-0000-4000-8000-000000000004",
+          "code": "Cash",
+          "name": "Dinheiro"
+        },
+        "deliveryAddress": {
+          "postalCode": "01001000",
+          "street": "Rua Exemplo",
+          "number": "123",
+          "complement": null,
+          "district": "Centro",
+          "city": "São Paulo",
+          "state": "SP",
+          "reference": null
+        },
+        "notes": null,
+        "cashTendered": 50,
+        "changeDue": 30,
+        "deliveryFee": 0,
+        "updatedAtUtc": "2026-10-08T00:35:00Z",
+        "items": [
+          {
+            "productId": "00000000-0000-4000-8000-000000000003",
+            "productName": "VanderBeer Pilsen 350 ml",
+            "unitLabel": "Lata 350 ml",
+            "quantity": 2,
+            "unitPrice": 10,
+            "subtotal": 20
+          }
+        ],
+        "statusHistory": [
+          {
+            "sequence": 1,
+            "fromStatus": null,
+            "toStatus": "Received",
+            "occurredAtUtc": "2026-10-08T00:35:00Z",
+            "reason": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "GetCompanyProducts-response",
+      "schema": "ProductPage",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "items": [
+          {
+            "id": "00000000-0000-4000-8000-000000000003",
+            "categoryId": "00000000-0000-4000-8000-000000000002",
+            "sku": "VB-PILSEN-350",
+            "name": "VanderBeer Pilsen 350 ml",
+            "description": "Produto de demonstração.",
+            "unitLabel": "Lata 350 ml",
+            "price": 10,
+            "imageUrl": null,
+            "isAvailable": true,
+            "isActive": true,
+            "version": 1,
+            "updatedAtUtc": "2026-10-08T00:20:00Z"
+          }
+        ],
+        "page": 1,
+        "pageSize": 20,
+        "total": 1
+      }
+    },
+    {
+      "name": "CreateProduct-request",
+      "schema": "CreateProductRequest",
+      "valid": true,
+      "value": {
+        "clientRequestId": "00000000-0000-4000-8000-000000000102",
+        "categoryId": "00000000-0000-4000-8000-000000000002",
+        "sku": "VB-PILSEN-350",
+        "name": "VanderBeer Pilsen 350 ml",
+        "description": "Produto de demonstração.",
+        "unitLabel": "Lata 350 ml",
+        "price": 10,
+        "imageUrl": null,
+        "isAvailable": true,
+        "isActive": true
+      }
+    },
+    {
+      "name": "CreateProduct-response",
+      "schema": "Product",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "id": "00000000-0000-4000-8000-000000000003",
+        "categoryId": "00000000-0000-4000-8000-000000000002",
+        "sku": "VB-PILSEN-350",
+        "name": "VanderBeer Pilsen 350 ml",
+        "description": "Produto de demonstração.",
+        "unitLabel": "Lata 350 ml",
+        "price": 10,
+        "imageUrl": null,
+        "isAvailable": true,
+        "isActive": true,
+        "version": 1,
+        "updatedAtUtc": "2026-10-08T00:20:00Z"
+      }
+    },
+    {
+      "name": "GetCompanyProduct-response",
+      "schema": "Product",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "id": "00000000-0000-4000-8000-000000000003",
+        "categoryId": "00000000-0000-4000-8000-000000000002",
+        "sku": "VB-PILSEN-350",
+        "name": "VanderBeer Pilsen 350 ml",
+        "description": "Produto de demonstração.",
+        "unitLabel": "Lata 350 ml",
+        "price": 10,
+        "imageUrl": null,
+        "isAvailable": true,
+        "isActive": true,
+        "version": 1,
+        "updatedAtUtc": "2026-10-08T00:20:00Z"
+      }
+    },
+    {
+      "name": "UpdateProduct-request",
+      "schema": "UpdateProductRequest",
+      "valid": true,
+      "value": {
+        "clientRequestId": "00000000-0000-4000-8000-000000000105",
+        "categoryId": "00000000-0000-4000-8000-000000000002",
+        "sku": "VB-PILSEN-350",
+        "name": "VanderBeer Pilsen 350 ml",
+        "description": "Produto de demonstração.",
+        "unitLabel": "Lata 350 ml",
+        "price": 10,
+        "imageUrl": null,
+        "isAvailable": true,
+        "isActive": true,
+        "expectedVersion": 1
+      }
+    },
+    {
+      "name": "UpdateProduct-response",
+      "schema": "Product",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "id": "00000000-0000-4000-8000-000000000003",
+        "categoryId": "00000000-0000-4000-8000-000000000002",
+        "sku": "VB-PILSEN-350",
+        "name": "VanderBeer Pilsen 350 ml",
+        "description": "Produto de demonstração.",
+        "unitLabel": "Lata 350 ml",
+        "price": 10,
+        "imageUrl": null,
+        "isAvailable": true,
+        "isActive": true,
+        "version": 2,
+        "updatedAtUtc": "2026-10-08T00:40:00Z"
+      }
+    },
+    {
+      "name": "GetCompanyOrders-response",
+      "schema": "OrderPage",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "items": [
+          {
+            "id": "00000000-0000-4000-8000-000000000005",
+            "protocol": "VB-00000001",
+            "createdAtUtc": "2026-10-08T00:35:00Z",
+            "requestedDate": "2026-10-08",
+            "fulfillmentType": "Delivery",
+            "status": "Received",
+            "total": 20,
+            "version": 1
+          }
+        ],
+        "page": 1,
+        "pageSize": 20,
+        "total": 1
+      }
+    },
+    {
+      "name": "GetCompanyOrder-response",
+      "schema": "Order",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "id": "00000000-0000-4000-8000-000000000005",
+        "protocol": "VB-00000001",
+        "createdAtUtc": "2026-10-08T00:35:00Z",
+        "requestedDate": "2026-10-08",
+        "fulfillmentType": "Delivery",
+        "status": "Received",
+        "total": 20,
+        "version": 1,
+        "clientRequestId": "00000000-0000-4000-8000-000000000103",
+        "customerId": "00000000-0000-4000-8000-000000000001",
+        "customer": {
+          "name": "Cliente de demonstração",
+          "phone": "11999999999"
+        },
+        "paymentMethod": {
+          "id": "00000000-0000-4000-8000-000000000004",
+          "code": "Cash",
+          "name": "Dinheiro"
+        },
+        "deliveryAddress": {
+          "postalCode": "01001000",
+          "street": "Rua Exemplo",
+          "number": "123",
+          "complement": null,
+          "district": "Centro",
+          "city": "São Paulo",
+          "state": "SP",
+          "reference": null
+        },
+        "notes": null,
+        "cashTendered": 50,
+        "changeDue": 30,
+        "deliveryFee": 0,
+        "updatedAtUtc": "2026-10-08T00:35:00Z",
+        "items": [
+          {
+            "productId": "00000000-0000-4000-8000-000000000003",
+            "productName": "VanderBeer Pilsen 350 ml",
+            "unitLabel": "Lata 350 ml",
+            "quantity": 2,
+            "unitPrice": 10,
+            "subtotal": 20
+          }
+        ],
+        "statusHistory": [
+          {
+            "sequence": 1,
+            "fromStatus": null,
+            "toStatus": "Received",
+            "occurredAtUtc": "2026-10-08T00:35:00Z",
+            "reason": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "UpdateOrderStatus-request",
+      "schema": "UpdateOrderStatusRequest",
+      "valid": true,
+      "value": {
+        "clientRequestId": "00000000-0000-4000-8000-000000000106",
+        "expectedVersion": 1,
+        "status": "Confirmed",
+        "reason": null
+      }
+    },
+    {
+      "name": "UpdateOrderStatus-response",
+      "schema": "Order",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "id": "00000000-0000-4000-8000-000000000005",
+        "protocol": "VB-00000001",
+        "createdAtUtc": "2026-10-08T00:35:00Z",
+        "requestedDate": "2026-10-08",
+        "fulfillmentType": "Delivery",
+        "status": "Confirmed",
+        "total": 20,
+        "version": 2,
+        "clientRequestId": "00000000-0000-4000-8000-000000000103",
+        "customerId": "00000000-0000-4000-8000-000000000001",
+        "customer": {
+          "name": "Cliente de demonstração",
+          "phone": "11999999999"
+        },
+        "paymentMethod": {
+          "id": "00000000-0000-4000-8000-000000000004",
+          "code": "Cash",
+          "name": "Dinheiro"
+        },
+        "deliveryAddress": {
+          "postalCode": "01001000",
+          "street": "Rua Exemplo",
+          "number": "123",
+          "complement": null,
+          "district": "Centro",
+          "city": "São Paulo",
+          "state": "SP",
+          "reference": null
+        },
+        "notes": null,
+        "cashTendered": 50,
+        "changeDue": 30,
+        "deliveryFee": 0,
+        "updatedAtUtc": "2026-10-08T00:40:00Z",
+        "items": [
+          {
+            "productId": "00000000-0000-4000-8000-000000000003",
+            "productName": "VanderBeer Pilsen 350 ml",
+            "unitLabel": "Lata 350 ml",
+            "quantity": 2,
+            "unitPrice": 10,
+            "subtotal": 20
+          }
+        ],
+        "statusHistory": [
+          {
+            "sequence": 1,
+            "fromStatus": null,
+            "toStatus": "Received",
+            "occurredAtUtc": "2026-10-08T00:35:00Z",
+            "reason": null
+          },
+          {
+            "sequence": 2,
+            "fromStatus": "Received",
+            "toStatus": "Confirmed",
+            "occurredAtUtc": "2026-10-08T00:40:00Z",
+            "reason": null
+          }
+        ]
+      }
+    },
+    {
+      "name": "GetHealth-response",
+      "schema": "Health",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "status": "Healthy"
+      }
+    },
+    {
+      "name": "empty-catalog",
+      "schema": "ProductPage",
+      "valid": true,
+      "value": {
+        "items": [],
+        "page": 1,
+        "pageSize": 20,
+        "total": 0
+      }
+    },
+    {
+      "name": "price-changed",
+      "schema": "Problem",
+      "valid": true,
+      "value": {
+        "type": "about:blank",
+        "title": "Conflito",
+        "status": 409,
+        "detail": "O preço mudou. Revise antes de enviar.",
+        "code": "PriceChanged",
+        "traceId": "demo-trace-001",
+        "errors": [],
+        "currentVersion": null,
+        "priceChanges": [
+          {
+            "productId": "00000000-0000-4000-8000-000000000003",
+            "expectedUnitPrice": 10,
+            "currentUnitPrice": 12
+          }
+        ],
+        "currentTotal": 24
+      }
+    },
+    {
+      "name": "duplicate-cpf",
+      "schema": "Problem",
+      "valid": true,
+      "value": {
+        "type": "about:blank",
+        "title": "Conflito",
+        "status": 409,
+        "detail": "Já existe um cadastro com esse CPF.",
+        "code": "DuplicateCpf",
+        "traceId": "demo-trace-001",
+        "errors": [
+          {
+            "field": "cpf",
+            "message": "CPF já cadastrado."
+          }
+        ],
+        "currentVersion": null,
+        "priceChanges": [],
+        "currentTotal": null
+      }
+    },
+    {
+      "name": "invalid-transition",
+      "schema": "Problem",
+      "valid": true,
+      "value": {
+        "type": "about:blank",
+        "title": "Conflito",
+        "status": 409,
+        "detail": "O pedido precisa estar em preparo antes de sair para entrega.",
+        "code": "InvalidOrderTransition",
+        "traceId": "demo-trace-001",
+        "errors": [],
+        "currentVersion": 1,
+        "priceChanges": [],
+        "currentTotal": null
+      }
+    },
+    {
+      "name": "quantity-zero-rejected-by-contract",
+      "schema": "CreateOrderRequest",
+      "valid": false,
+      "value": {
+        "clientRequestId": "00000000-0000-4000-8000-000000000103",
+        "customerId": "00000000-0000-4000-8000-000000000001",
+        "expectedCustomerVersion": 1,
+        "fulfillmentType": "Delivery",
+        "requestedDate": "2026-10-08",
+        "paymentMethodId": "00000000-0000-4000-8000-000000000004",
+        "cashTendered": 50,
+        "deliveryAddress": {
+          "postalCode": "01001000",
+          "street": "Rua Exemplo",
+          "number": "123",
+          "complement": null,
+          "district": "Centro",
+          "city": "São Paulo",
+          "state": "SP",
+          "reference": null
+        },
+        "notes": null,
+        "items": [
+          {
+            "productId": "00000000-0000-4000-8000-000000000003",
+            "quantity": 0,
+            "expectedUnitPrice": 10
+          }
+        ]
+      }
+    },
+    {
+      "name": "unknown-field-rejected-by-contract",
+      "schema": "CreateCustomerRequest",
+      "valid": false,
+      "value": {
+        "clientRequestId": "00000000-0000-4000-8000-000000000101",
+        "fullName": "Cliente de demonstração",
+        "cpf": "12345678909",
+        "phone": "11999999999",
+        "email": null,
+        "address": {
+          "postalCode": "01001000",
+          "street": "Rua Exemplo",
+          "number": "123",
+          "complement": null,
+          "district": "Centro",
+          "city": "São Paulo",
+          "state": "SP",
+          "reference": null
+        },
+        "password": "not-supported",
+        "customerType": "Individual",
+        "companyName": null,
+        "cnpj": null
+      }
+    },
+    {
+      "name": "fractional-cent-rejected-by-contract",
+      "schema": "CreateProductRequest",
+      "valid": false,
+      "value": {
+        "clientRequestId": "00000000-0000-4000-8000-000000000102",
+        "categoryId": "00000000-0000-4000-8000-000000000002",
+        "sku": "VB-PILSEN-350",
+        "name": "VanderBeer Pilsen 350 ml",
+        "description": "Produto de demonstração.",
+        "unitLabel": "Lata 350 ml",
+        "price": 10.001,
+        "imageUrl": null,
+        "isAvailable": true,
+        "isActive": true
+      }
+    },
+    {
+      "name": "CustomerVersionConflict",
+      "schema": "Problem",
+      "valid": true,
+      "value": {
+        "type": "about:blank",
+        "title": "Conflito",
+        "status": 409,
+        "detail": "O registro mudou. Atualize e revise.",
+        "code": "CustomerVersionConflict",
+        "traceId": "demo-trace-002",
+        "errors": [],
+        "currentVersion": 2,
+        "priceChanges": [],
+        "currentTotal": null
+      }
+    },
+    {
+      "name": "ProductVersionConflict",
+      "schema": "Problem",
+      "valid": true,
+      "value": {
+        "type": "about:blank",
+        "title": "Conflito",
+        "status": 409,
+        "detail": "O registro mudou. Atualize e revise.",
+        "code": "ProductVersionConflict",
+        "traceId": "demo-trace-002",
+        "errors": [],
+        "currentVersion": 2,
+        "priceChanges": [],
+        "currentTotal": null
+      }
+    },
+    {
+      "name": "OrderVersionConflict",
+      "schema": "Problem",
+      "valid": true,
+      "value": {
+        "type": "about:blank",
+        "title": "Conflito",
+        "status": 409,
+        "detail": "O registro mudou. Atualize e revise.",
+        "code": "OrderVersionConflict",
+        "traceId": "demo-trace-002",
+        "errors": [],
+        "currentVersion": 2,
+        "priceChanges": [],
+        "currentTotal": null
+      }
+    },
+    {
+      "name": "CreateBusinessCustomer-request",
+      "schema": "CreateCustomerRequest",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "clientRequestId": "00000000-0000-4000-8000-000000000201",
+        "fullName": "Responsável de demonstração",
+        "cpf": null,
+        "phone": "11999999999",
+        "email": null,
+        "address": {
+          "postalCode": "01001000",
+          "street": "Rua Exemplo",
+          "number": "123",
+          "complement": null,
+          "district": "Centro",
+          "city": "São Paulo",
+          "state": "SP",
+          "reference": null
+        },
+        "customerType": "Business",
+        "companyName": "Empresa Exemplo Ltda",
+        "cnpj": "11222333000181"
+      }
+    },
+    {
+      "name": "CreateAlphanumericBusinessCustomer-request",
+      "schema": "CreateCustomerRequest",
+      "inlineSchema": null,
+      "valid": true,
+      "value": {
+        "clientRequestId": "00000000-0000-4000-8000-000000000202",
+        "fullName": "Responsável de demonstração",
+        "cpf": null,
+        "phone": "11999999999",
+        "email": null,
+        "address": {
+          "postalCode": "01001000",
+          "street": "Rua Exemplo",
+          "number": "123",
+          "complement": null,
+          "district": "Centro",
+          "city": "São Paulo",
+          "state": "SP",
+          "reference": null
+        },
+        "customerType": "Business",
+        "companyName": "Empresa Exemplo Ltda",
+        "cnpj": "00000000E08G12"
+      }
+    }
+  ]
+}

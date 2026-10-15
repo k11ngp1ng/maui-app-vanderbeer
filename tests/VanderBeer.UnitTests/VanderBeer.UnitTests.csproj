@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <PackageReference Include="sqlite-net-pcl" Version="1.11.285" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\VanderBeer.Domain\VanderBeer.Domain.csproj" />
+    <ProjectReference Include="..\..\src\VanderBeer.Application\VanderBeer.Application.csproj" />
+    <ProjectReference Include="..\..\src\VanderBeer.Contracts\VanderBeer.Contracts.csproj" />
+    <Compile Include="..\..\src\VanderBeer.App\Storage\CustomerStore.cs" Link="CustomerStore.cs" />
+    <Compile Include="..\..\src\VanderBeer.App\Storage\LocalDatabase.cs" Link="LocalDatabase.cs" />
+    <Compile Include="..\..\src\VanderBeer.App\Storage\CartStore.cs" Link="CartStore.cs" />
+    <Compile Include="..\..\src\VanderBeer.App\Storage\LocalOrderStore.cs" Link="LocalOrderStore.cs" />
+    <Compile Include="..\..\src\VanderBeer.App\Storage\CompanyOrderCommandStore.cs" Link="CompanyOrderCommandStore.cs" />
+    <Compile Include="..\..\src\VanderBeer.App\Features\Shared\MoneyInput.cs" Link="MoneyInput.cs" />
+    <Compile Include="..\..\src\VanderBeer.App\Features\Shared\OrderTimeFormat.cs" Link="OrderTimeFormat.cs" />
+    <Compile Include="..\..\src\VanderBeer.App\Features\Shared\OrderProgress.cs" Link="OrderProgress.cs" />
+  </ItemGroup>
+
+</Project>
